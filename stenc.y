@@ -9,8 +9,8 @@
 
 %token ID INT_TYPE VOID_TYPE COMMENT INTEGER PRINTI PRINTF STRING MAIN RETURN
 %token IF ELSE WHILE DO FOR INCR DECR LOG_AND LOG_OR LOG_EQ GE LE NE GT LT NOT
-%right '=' '{' '!' 
-%left INCR DECR '+' '-' '*' '/' LOG_AND LOG_EQ GE LE NE LOG_OR GT LT 
+%right ASSIGN 
+%left INCR DECR '+' '-' '*' '/' NOT LOG_AND LOG_EQ GE LE NE LOG_OR GT LT 
 
 // TODO : assignement -> assignement list 
 // FOR sans accolades ?
@@ -22,7 +22,10 @@ program: INT_TYPE MAIN '(' ')' '{' statement_list '}' ;
 statement_list: statement statement_list
   | %empty
   ;
-statement: line ';'
+statement: assignement ';'
+  | ID INCR';'
+  | ID DECR ';'
+  | declaration ';'
   | PRINTI '(' variable ')' ';' 
   | PRINTF '(' STRING ')' ';'
   | IF '('boolean_expression')' '{'statement_list'}'
@@ -32,39 +35,42 @@ statement: line ';'
   | RETURN INTEGER ';'
   ;
 
-line: assignement
-  | definition
+assignement: variable ASSIGN expression
+  | variable ASSIGN assignement
   ;
 
-assignement: variable '=' expression
-  | variable '=' assignement
-  | ID INCR 
-  | ID DECR 
-  ;
-definition: INT_TYPE ID '=' expression
-  | INT_TYPE ID dimensions '=' '{'int_list'}'
+variable: ID ;
+  | array ']'
   ;
 
-
-variable: ID dimensions;
-dimensions: %empty
-  | dimensions '['expression']'
+array: ID '[' expression 
+  | array ']' '[' expression
   ;
 
-int_list: INTEGER
-  | int_list ',' INTEGER
-    ;
+declaration: INT_TYPE ID
+  | INT_TYPE ID ASSIGN expression
+  | INT_TYPE array']'
+  | INT_TYPE array ASSIGN '{'int_list'}'
+  ;
 
-boolean_expression: expression LOG_EQ expression
-  | expression GE expression
-  | expression GT expression
-  | expression LE expression
-  | expression LT expression
-  | expression NE expression
+int_list: expression
+  | int_list ',' expression
+  ;
+
+boolean_expression: boolean_expression LOG_OR boolean_expression
   | boolean_expression LOG_AND boolean_expression
-  | boolean_expression LOG_OR boolean_expression
+  | expression relop expression
+  | expression LOG_EQ expression
+  | expression NE expression
   | NOT boolean_expression
   | '('boolean_expression')'
+  | expression
+  ;
+
+relop: GT
+  | LT
+  | LE
+  | GE
   ;
 
 expression: '-' expression

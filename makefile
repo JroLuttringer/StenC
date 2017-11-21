@@ -1,6 +1,6 @@
 CC = gcc
 LEX = lex
-YACC = bison -d
+YACC = bison -d --verbose 
 CFLAGS = -O2 -Wall -Wconflicts-sr 
 LDFLAGS = -ly -lfl  # Linux: -lfl / OSX: -ll
 EXEC = stenc

@@ -33,7 +33,7 @@ string  \".*\"
 "<"      { return LT;}
 "!="     { return NE;}
 ";"      { return yytext[0];}
-"="      { return yytext[0];}
+"="      { return ASSIGN;}
 "{"      { return yytext[0];}
 "}"      { return yytext[0];}
 ","      { return yytext[0];}
@@ -41,7 +41,7 @@ string  \".*\"
 ")"      { return yytext[0];}
 "["      { return yytext[0];}
 "]"      { return yytext[0];}
-"!"      { return yytext[0];}
+"!"      { return NOT;}
 "-"      { return yytext[0];}
 "+"      { return yytext[0];}
 "*"      { return yytext[0];}
