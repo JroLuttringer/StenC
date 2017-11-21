@@ -2,6 +2,9 @@ int main(){
   int var1 = 5;
   int tab1[5] = {1,2,3,4,5};
   int x = var1;
+  int tab2[tab[5]];
+  int tabb[1][1] = {{1,2} , {1,3}};
+  int h;
   while(i>10) {
     if ((test == test) && (test != 10)){
       tab1[4] = 42;

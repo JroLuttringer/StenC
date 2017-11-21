@@ -10,7 +10,7 @@
 %token ID INT_TYPE VOID_TYPE COMMENT INTEGER PRINTI PRINTF STRING MAIN RETURN
 %token IF ELSE WHILE DO FOR INCR DECR LOG_AND LOG_OR LOG_EQ GE LE NE GT LT NOT
 %right ASSIGN 
-%left INCR DECR '+' '-' '*' '/' NOT LOG_AND LOG_EQ GE LE NE LOG_OR GT LT 
+%left INCR DECR ',' '+' '-' '*' '/' NOT LOG_AND LOG_EQ GE LE NE LOG_OR GT LT 
 
 // TODO : assignement -> assignement list 
 // FOR sans accolades ?
@@ -24,7 +24,7 @@ statement_list: statement statement_list
   ;
 statement: assignement ';'
   | declaration ';'
-  | expression;
+  | expression ';'
   | PRINTI '(' variable ')' ';' 
   | PRINTF '(' STRING ')' ';'
   | IF '('boolean_expression')' '{'statement_list'}'
@@ -49,10 +49,15 @@ array: ID '[' expression
 declaration: INT_TYPE ID
   | INT_TYPE ID ASSIGN expression
   | INT_TYPE array']'
-  | INT_TYPE array']' ASSIGN '{'int_list'}'
+  | INT_TYPE array']' ASSIGN '{'init_array'}'
   ;
 
-int_list: expression
+init_array:  int_list
+  | '{'init_array'}'
+  | '{'init_array'}' ',' '{'int_list'}'
+  ;
+
+int_list:  expression 
   | int_list ',' expression
   ;
 
