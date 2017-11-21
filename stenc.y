@@ -23,15 +23,14 @@ statement_list: statement statement_list
   | %empty
   ;
 statement: assignement ';'
-  | ID INCR';'
-  | ID DECR ';'
   | declaration ';'
+  | expression;
   | PRINTI '(' variable ')' ';' 
   | PRINTF '(' STRING ')' ';'
   | IF '('boolean_expression')' '{'statement_list'}'
   | IF '('boolean_expression')' '{'statement_list'}' ELSE '{'statement_list'}'
   | WHILE '(' boolean_expression ')' '{'statement_list'}'
-  | FOR '('assignement';' boolean_expression ';' assignement ')' '{'statement_list'}'
+  | FOR '('assignement';' boolean_expression ';' expression ')' '{'statement_list'}'
   | RETURN INTEGER ';'
   ;
 
@@ -50,7 +49,7 @@ array: ID '[' expression
 declaration: INT_TYPE ID
   | INT_TYPE ID ASSIGN expression
   | INT_TYPE array']'
-  | INT_TYPE array ASSIGN '{'int_list'}'
+  | INT_TYPE array']' ASSIGN '{'int_list'}'
   ;
 
 int_list: expression
@@ -78,8 +77,11 @@ expression: '-' expression
   | expression '-' expression
   | expression '/' expression
   | expression '*' expression
+  | ID INCR
+  | ID DECR  
   | variable
   | INTEGER 
+
   ;
 %%
 

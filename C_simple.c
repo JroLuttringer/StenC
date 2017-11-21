@@ -10,6 +10,9 @@ int main(){
       tab1[i] = 4;
     }
   }
+  if(i++ > 5 && i+8 ){
+    tab[50] = i++ + 5;
+  }
   printi(tab1[x+j]);
   printf("sw@g");
   return 0;
