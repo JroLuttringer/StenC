@@ -1,10 +1,10 @@
 CC = gcc
 LEX = lex
 YACC = bison -d --verbose 
-CFLAGS = -O2 -Wall -Wconflicts-sr 
+CFLAGS = -O2 -Wall
 LDFLAGS = -ly -lfl  # Linux: -lfl / OSX: -ll
 EXEC = stenc
-SRC = 
+SRC = list_quad.c quad.c list.c
 OBJ = $(SRC:.c=.o)
 
 all: $(OBJ) stenc.tab.c lex.yy.c

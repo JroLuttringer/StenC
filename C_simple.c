@@ -3,7 +3,7 @@ int main(){
   int tab1[5] = {1,2,3,4,5};
   int x = var1;
   int tab2[tab[5]];
-  int tabb[1][1] = {{1,2} , {1,3}};
+  int tabb[1][1] = {{1,{3+10}}, {1,{3+i,4}}, {11,2,4}};
   int h;
   while(i>10) {
     if ((test == test) && (test != 10)){

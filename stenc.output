@@ -25,7 +25,7 @@ Grammar
    11          | IF '(' boolean_expression ')' '{' statement_list '}' ELSE '{' statement_list '}'
    12          | WHILE '(' boolean_expression ')' '{' statement_list '}'
    13          | FOR '(' assignement ';' boolean_expression ';' expression ')' '{' statement_list '}'
-   14          | RETURN INTEGER ';'
+   14          | RETURN expression ';'
 
    15 assignement: variable ASSIGN expression
    16            | variable ASSIGN assignement
@@ -41,59 +41,58 @@ Grammar
    23            | INT_TYPE array ']'
    24            | INT_TYPE array ']' ASSIGN '{' init_array '}'
 
-   25 init_array: int_list
-   26           | '{' init_array '}'
-   27           | '{' init_array '}' ',' '{' int_list '}'
+   25 init_array: inside_array
+   26           | init_array ',' inside_array
 
-   28 int_list: expression
-   29         | int_list ',' expression
+   27 inside_array: expression
+   28             | '{' init_array '}'
 
-   30 boolean_expression: boolean_expression LOG_OR boolean_expression
-   31                   | boolean_expression LOG_AND boolean_expression
-   32                   | expression relop expression
-   33                   | expression LOG_EQ expression
-   34                   | expression NE expression
-   35                   | NOT boolean_expression
-   36                   | '(' boolean_expression ')'
-   37                   | expression
+   29 boolean_expression: boolean_expression LOG_OR boolean_expression
+   30                   | boolean_expression LOG_AND boolean_expression
+   31                   | expression relop expression
+   32                   | expression LOG_EQ expression
+   33                   | expression NE expression
+   34                   | NOT boolean_expression
+   35                   | '(' boolean_expression ')'
+   36                   | expression
 
-   38 relop: GT
-   39      | LT
-   40      | LE
-   41      | GE
+   37 relop: GT
+   38      | LT
+   39      | LE
+   40      | GE
 
-   42 expression: '-' expression
-   43           | expression '+' expression
-   44           | expression '-' expression
-   45           | expression '/' expression
-   46           | expression '*' expression
-   47           | ID INCR
-   48           | ID DECR
-   49           | variable
-   50           | INTEGER
+   41 expression: '-' expression
+   42           | expression '+' expression
+   43           | expression '-' expression
+   44           | expression '/' expression
+   45           | expression '*' expression
+   46           | ID INCR
+   47           | ID DECR
+   48           | variable
+   49           | INTEGER
 
 
 Terminals, with rules where they appear
 
 $end (0) 0
-'(' (40) 2 8 9 10 11 12 13 36
-')' (41) 2 8 9 10 11 12 13 36
-'*' (42) 46
-'+' (43) 43
-',' (44) 27 29
-'-' (45) 42 44
-'/' (47) 45
+'(' (40) 2 8 9 10 11 12 13 35
+')' (41) 2 8 9 10 11 12 13 35
+'*' (42) 45
+'+' (43) 42
+',' (44) 26
+'-' (45) 41 43
+'/' (47) 44
 ';' (59) 5 6 7 8 9 13 14
 '[' (91) 19 20
 ']' (93) 18 20 23 24
-'{' (123) 2 10 11 12 13 24 26 27
-'}' (125) 2 10 11 12 13 24 26 27
+'{' (123) 2 10 11 12 13 24 28
+'}' (125) 2 10 11 12 13 24 28
 error (256)
-ID (258) 17 19 21 22 47 48
+ID (258) 17 19 21 22 46 47
 INT_TYPE (259) 2 21 22 23 24
 VOID_TYPE (260)
 COMMENT (261)
-INTEGER (262) 14 50
+INTEGER (262) 49
 PRINTI (263) 8
 PRINTF (264) 9
 STRING (265) 9
@@ -104,17 +103,17 @@ ELSE (269) 11
 WHILE (270) 12
 DO (271)
 FOR (272) 13
-INCR (273) 47
-DECR (274) 48
-LOG_AND (275) 31
-LOG_OR (276) 30
-LOG_EQ (277) 33
-GE (278) 41
-LE (279) 40
-NE (280) 34
-GT (281) 38
-LT (282) 39
-NOT (283) 35
+INCR (273) 46
+DECR (274) 47
+LOG_AND (275) 30
+LOG_OR (276) 29
+LOG_EQ (277) 32
+GE (278) 40
+LE (279) 39
+NE (280) 33
+GT (281) 37
+LT (282) 38
+NOT (283) 34
 ASSIGN (284) 15 16 22 24
 
 
@@ -133,23 +132,23 @@ statement (46)
 assignement (47)
     on left: 15 16, on right: 5 13 16
 variable (48)
-    on left: 17 18, on right: 8 15 16 49
+    on left: 17 18, on right: 8 15 16 48
 array (49)
     on left: 19 20, on right: 18 20 23 24
 declaration (50)
     on left: 21 22 23 24, on right: 6
 init_array (51)
-    on left: 25 26 27, on right: 24 26 27
-int_list (52)
-    on left: 28 29, on right: 25 27 29
+    on left: 25 26, on right: 24 26 28
+inside_array (52)
+    on left: 27 28, on right: 25 26
 boolean_expression (53)
-    on left: 30 31 32 33 34 35 36 37, on right: 10 11 12 13 30 31 35
-    36
+    on left: 29 30 31 32 33 34 35 36, on right: 10 11 12 13 29 30 34
+    35
 relop (54)
-    on left: 38 39 40 41, on right: 32
+    on left: 37 38 39 40, on right: 31
 expression (55)
-    on left: 42 43 44 45 46 47 48 49 50, on right: 7 13 15 19 20 22
-    28 29 32 33 34 37 42 43 44 45 46
+    on left: 41 42 43 44 45 46 47 48 49, on right: 7 13 14 15 19 20
+    22 27 31 32 33 36 41 42 43 44 45
 
 
 State 0
@@ -241,8 +240,8 @@ State 9
 
    17 variable: ID .
    19 array: ID . '[' expression
-   47 expression: ID . INCR
-   48           | ID . DECR
+   46 expression: ID . INCR
+   47           | ID . DECR
 
     INCR  shift, and go to state 26
     DECR  shift, and go to state 27
@@ -265,9 +264,9 @@ State 10
 
 State 11
 
-   50 expression: INTEGER .
+   49 expression: INTEGER .
 
-    $default  reduce using rule 50 (expression)
+    $default  reduce using rule 49 (expression)
 
 
 State 12
@@ -286,9 +285,15 @@ State 13
 
 State 14
 
-   14 statement: RETURN . INTEGER ';'
+   14 statement: RETURN . expression ';'
 
-    INTEGER  shift, and go to state 33
+    ID       shift, and go to state 9
+    INTEGER  shift, and go to state 11
+    '-'      shift, and go to state 18
+
+    variable    go to state 33
+    array       go to state 23
+    expression  go to state 34
 
 
 State 15
@@ -296,32 +301,32 @@ State 15
    10 statement: IF . '(' boolean_expression ')' '{' statement_list '}'
    11          | IF . '(' boolean_expression ')' '{' statement_list '}' ELSE '{' statement_list '}'
 
-    '('  shift, and go to state 34
+    '('  shift, and go to state 35
 
 
 State 16
 
    12 statement: WHILE . '(' boolean_expression ')' '{' statement_list '}'
 
-    '('  shift, and go to state 35
+    '('  shift, and go to state 36
 
 
 State 17
 
    13 statement: FOR . '(' assignement ';' boolean_expression ';' expression ')' '{' statement_list '}'
 
-    '('  shift, and go to state 36
+    '('  shift, and go to state 37
 
 
 State 18
 
-   42 expression: '-' . expression
+   41 expression: '-' . expression
 
     ID       shift, and go to state 9
     INTEGER  shift, and go to state 11
     '-'      shift, and go to state 18
 
-    variable    go to state 37
+    variable    go to state 33
     array       go to state 23
     expression  go to state 38
 
@@ -370,11 +375,11 @@ State 22
 
    15 assignement: variable . ASSIGN expression
    16            | variable . ASSIGN assignement
-   49 expression: variable .
+   48 expression: variable .
 
     ASSIGN  shift, and go to state 42
 
-    $default  reduce using rule 49 (expression)
+    $default  reduce using rule 48 (expression)
 
 
 State 23
@@ -395,30 +400,30 @@ State 24
 State 25
 
     7 statement: expression . ';'
-   43 expression: expression . '+' expression
-   44           | expression . '-' expression
-   45           | expression . '/' expression
-   46           | expression . '*' expression
+   42 expression: expression . '+' expression
+   43           | expression . '-' expression
+   44           | expression . '/' expression
+   45           | expression . '*' expression
 
-    '+'  shift, and go to state 45
-    '-'  shift, and go to state 46
-    '*'  shift, and go to state 47
-    '/'  shift, and go to state 48
+    '-'  shift, and go to state 45
+    '*'  shift, and go to state 46
+    '/'  shift, and go to state 47
+    '+'  shift, and go to state 48
     ';'  shift, and go to state 49
 
 
 State 26
 
-   47 expression: ID INCR .
+   46 expression: ID INCR .
 
-    $default  reduce using rule 47 (expression)
+    $default  reduce using rule 46 (expression)
 
 
 State 27
 
-   48 expression: ID DECR .
+   47 expression: ID DECR .
 
-    $default  reduce using rule 48 (expression)
+    $default  reduce using rule 47 (expression)
 
 
 State 28
@@ -429,7 +434,7 @@ State 28
     INTEGER  shift, and go to state 11
     '-'      shift, and go to state 18
 
-    variable    go to state 37
+    variable    go to state 33
     array       go to state 23
     expression  go to state 50
 
@@ -474,12 +479,27 @@ State 32
 
 State 33
 
-   14 statement: RETURN INTEGER . ';'
+   48 expression: variable .
 
-    ';'  shift, and go to state 56
+    $default  reduce using rule 48 (expression)
 
 
 State 34
+
+   14 statement: RETURN expression . ';'
+   42 expression: expression . '+' expression
+   43           | expression . '-' expression
+   44           | expression . '/' expression
+   45           | expression . '*' expression
+
+    '-'  shift, and go to state 45
+    '*'  shift, and go to state 46
+    '/'  shift, and go to state 47
+    '+'  shift, and go to state 48
+    ';'  shift, and go to state 56
+
+
+State 35
 
    10 statement: IF '(' . boolean_expression ')' '{' statement_list '}'
    11          | IF '(' . boolean_expression ')' '{' statement_list '}' ELSE '{' statement_list '}'
@@ -490,13 +510,13 @@ State 34
     '-'      shift, and go to state 18
     '('      shift, and go to state 58
 
-    variable            go to state 37
+    variable            go to state 33
     array               go to state 23
     boolean_expression  go to state 59
     expression          go to state 60
 
 
-State 35
+State 36
 
    12 statement: WHILE '(' . boolean_expression ')' '{' statement_list '}'
 
@@ -506,13 +526,13 @@ State 35
     '-'      shift, and go to state 18
     '('      shift, and go to state 58
 
-    variable            go to state 37
+    variable            go to state 33
     array               go to state 23
     boolean_expression  go to state 61
     expression          go to state 60
 
 
-State 36
+State 37
 
    13 statement: FOR '(' . assignement ';' boolean_expression ';' expression ')' '{' statement_list '}'
 
@@ -523,22 +543,15 @@ State 36
     array        go to state 23
 
 
-State 37
-
-   49 expression: variable .
-
-    $default  reduce using rule 49 (expression)
-
-
 State 38
 
-   42 expression: '-' expression .
-   43           | expression . '+' expression
-   44           | expression . '-' expression
-   45           | expression . '/' expression
-   46           | expression . '*' expression
+   41 expression: '-' expression .
+   42           | expression . '+' expression
+   43           | expression . '-' expression
+   44           | expression . '/' expression
+   45           | expression . '*' expression
 
-    $default  reduce using rule 42 (expression)
+    $default  reduce using rule 41 (expression)
 
 
 State 39
@@ -596,52 +609,52 @@ State 44
 
 State 45
 
-   43 expression: expression '+' . expression
+   43 expression: expression '-' . expression
 
     ID       shift, and go to state 9
     INTEGER  shift, and go to state 11
     '-'      shift, and go to state 18
 
-    variable    go to state 37
+    variable    go to state 33
     array       go to state 23
     expression  go to state 67
 
 
 State 46
 
-   44 expression: expression '-' . expression
+   45 expression: expression '*' . expression
 
     ID       shift, and go to state 9
     INTEGER  shift, and go to state 11
     '-'      shift, and go to state 18
 
-    variable    go to state 37
+    variable    go to state 33
     array       go to state 23
     expression  go to state 68
 
 
 State 47
 
-   46 expression: expression '*' . expression
+   44 expression: expression '/' . expression
 
     ID       shift, and go to state 9
     INTEGER  shift, and go to state 11
     '-'      shift, and go to state 18
 
-    variable    go to state 37
+    variable    go to state 33
     array       go to state 23
     expression  go to state 69
 
 
 State 48
 
-   45 expression: expression '/' . expression
+   42 expression: expression '+' . expression
 
     ID       shift, and go to state 9
     INTEGER  shift, and go to state 11
     '-'      shift, and go to state 18
 
-    variable    go to state 37
+    variable    go to state 33
     array       go to state 23
     expression  go to state 70
 
@@ -656,15 +669,15 @@ State 49
 State 50
 
    19 array: ID '[' expression .
-   43 expression: expression . '+' expression
-   44           | expression . '-' expression
-   45           | expression . '/' expression
-   46           | expression . '*' expression
+   42 expression: expression . '+' expression
+   43           | expression . '-' expression
+   44           | expression . '/' expression
+   45           | expression . '*' expression
 
-    '+'  shift, and go to state 45
-    '-'  shift, and go to state 46
-    '*'  shift, and go to state 47
-    '/'  shift, and go to state 48
+    '-'  shift, and go to state 45
+    '*'  shift, and go to state 46
+    '/'  shift, and go to state 47
+    '+'  shift, and go to state 48
 
     $default  reduce using rule 19 (array)
 
@@ -677,7 +690,7 @@ State 51
     INTEGER  shift, and go to state 11
     '-'      shift, and go to state 18
 
-    variable    go to state 37
+    variable    go to state 33
     array       go to state 23
     expression  go to state 71
 
@@ -720,14 +733,14 @@ State 55
 
 State 56
 
-   14 statement: RETURN INTEGER ';' .
+   14 statement: RETURN expression ';' .
 
     $default  reduce using rule 14 (statement)
 
 
 State 57
 
-   35 boolean_expression: NOT . boolean_expression
+   34 boolean_expression: NOT . boolean_expression
 
     ID       shift, and go to state 9
     INTEGER  shift, and go to state 11
@@ -735,7 +748,7 @@ State 57
     '-'      shift, and go to state 18
     '('      shift, and go to state 58
 
-    variable            go to state 37
+    variable            go to state 33
     array               go to state 23
     boolean_expression  go to state 75
     expression          go to state 60
@@ -743,7 +756,7 @@ State 57
 
 State 58
 
-   36 boolean_expression: '(' . boolean_expression ')'
+   35 boolean_expression: '(' . boolean_expression ')'
 
     ID       shift, and go to state 9
     INTEGER  shift, and go to state 11
@@ -751,7 +764,7 @@ State 58
     '-'      shift, and go to state 18
     '('      shift, and go to state 58
 
-    variable            go to state 37
+    variable            go to state 33
     array               go to state 23
     boolean_expression  go to state 76
     expression          go to state 60
@@ -761,8 +774,8 @@ State 59
 
    10 statement: IF '(' boolean_expression . ')' '{' statement_list '}'
    11          | IF '(' boolean_expression . ')' '{' statement_list '}' ELSE '{' statement_list '}'
-   30 boolean_expression: boolean_expression . LOG_OR boolean_expression
-   31                   | boolean_expression . LOG_AND boolean_expression
+   29 boolean_expression: boolean_expression . LOG_OR boolean_expression
+   30                   | boolean_expression . LOG_AND boolean_expression
 
     LOG_AND  shift, and go to state 77
     LOG_OR   shift, and go to state 78
@@ -771,14 +784,14 @@ State 59
 
 State 60
 
-   32 boolean_expression: expression . relop expression
-   33                   | expression . LOG_EQ expression
-   34                   | expression . NE expression
-   37                   | expression .
-   43 expression: expression . '+' expression
-   44           | expression . '-' expression
-   45           | expression . '/' expression
-   46           | expression . '*' expression
+   31 boolean_expression: expression . relop expression
+   32                   | expression . LOG_EQ expression
+   33                   | expression . NE expression
+   36                   | expression .
+   42 expression: expression . '+' expression
+   43           | expression . '-' expression
+   44           | expression . '/' expression
+   45           | expression . '*' expression
 
     LOG_EQ  shift, and go to state 80
     GE      shift, and go to state 81
@@ -786,12 +799,12 @@ State 60
     NE      shift, and go to state 83
     GT      shift, and go to state 84
     LT      shift, and go to state 85
-    '+'     shift, and go to state 45
-    '-'     shift, and go to state 46
-    '*'     shift, and go to state 47
-    '/'     shift, and go to state 48
+    '-'     shift, and go to state 45
+    '*'     shift, and go to state 46
+    '/'     shift, and go to state 47
+    '+'     shift, and go to state 48
 
-    $default  reduce using rule 37 (boolean_expression)
+    $default  reduce using rule 36 (boolean_expression)
 
     relop  go to state 86
 
@@ -799,8 +812,8 @@ State 60
 State 61
 
    12 statement: WHILE '(' boolean_expression . ')' '{' statement_list '}'
-   30 boolean_expression: boolean_expression . LOG_OR boolean_expression
-   31                   | boolean_expression . LOG_AND boolean_expression
+   29 boolean_expression: boolean_expression . LOG_OR boolean_expression
+   30                   | boolean_expression . LOG_AND boolean_expression
 
     LOG_AND  shift, and go to state 77
     LOG_OR   shift, and go to state 78
@@ -832,15 +845,15 @@ State 64
 State 65
 
    15 assignement: variable ASSIGN expression .
-   43 expression: expression . '+' expression
-   44           | expression . '-' expression
-   45           | expression . '/' expression
-   46           | expression . '*' expression
+   42 expression: expression . '+' expression
+   43           | expression . '-' expression
+   44           | expression . '/' expression
+   45           | expression . '*' expression
 
-    '+'  shift, and go to state 45
-    '-'  shift, and go to state 46
-    '*'  shift, and go to state 47
-    '/'  shift, and go to state 48
+    '-'  shift, and go to state 45
+    '*'  shift, and go to state 46
+    '/'  shift, and go to state 47
+    '+'  shift, and go to state 48
 
     $default  reduce using rule 15 (assignement)
 
@@ -853,67 +866,67 @@ State 66
     INTEGER  shift, and go to state 11
     '-'      shift, and go to state 18
 
-    variable    go to state 37
+    variable    go to state 33
     array       go to state 23
     expression  go to state 89
 
 
 State 67
 
-   43 expression: expression . '+' expression
-   43           | expression '+' expression .
-   44           | expression . '-' expression
-   45           | expression . '/' expression
-   46           | expression . '*' expression
+   42 expression: expression . '+' expression
+   43           | expression . '-' expression
+   43           | expression '-' expression .
+   44           | expression . '/' expression
+   45           | expression . '*' expression
 
     $default  reduce using rule 43 (expression)
 
 
 State 68
 
-   43 expression: expression . '+' expression
-   44           | expression . '-' expression
-   44           | expression '-' expression .
-   45           | expression . '/' expression
-   46           | expression . '*' expression
+   42 expression: expression . '+' expression
+   43           | expression . '-' expression
+   44           | expression . '/' expression
+   45           | expression . '*' expression
+   45           | expression '*' expression .
 
-    $default  reduce using rule 44 (expression)
+    $default  reduce using rule 45 (expression)
 
 
 State 69
 
-   43 expression: expression . '+' expression
-   44           | expression . '-' expression
-   45           | expression . '/' expression
-   46           | expression . '*' expression
-   46           | expression '*' expression .
+   42 expression: expression . '+' expression
+   43           | expression . '-' expression
+   44           | expression . '/' expression
+   44           | expression '/' expression .
+   45           | expression . '*' expression
 
-    $default  reduce using rule 46 (expression)
+    $default  reduce using rule 44 (expression)
 
 
 State 70
 
-   43 expression: expression . '+' expression
-   44           | expression . '-' expression
-   45           | expression . '/' expression
-   45           | expression '/' expression .
-   46           | expression . '*' expression
+   42 expression: expression . '+' expression
+   42           | expression '+' expression .
+   43           | expression . '-' expression
+   44           | expression . '/' expression
+   45           | expression . '*' expression
 
-    $default  reduce using rule 45 (expression)
+    $default  reduce using rule 42 (expression)
 
 
 State 71
 
    22 declaration: INT_TYPE ID ASSIGN expression .
-   43 expression: expression . '+' expression
-   44           | expression . '-' expression
-   45           | expression . '/' expression
-   46           | expression . '*' expression
+   42 expression: expression . '+' expression
+   43           | expression . '-' expression
+   44           | expression . '/' expression
+   45           | expression . '*' expression
 
-    '+'  shift, and go to state 45
-    '-'  shift, and go to state 46
-    '*'  shift, and go to state 47
-    '/'  shift, and go to state 48
+    '-'  shift, and go to state 45
+    '*'  shift, and go to state 46
+    '/'  shift, and go to state 47
+    '+'  shift, and go to state 48
 
     $default  reduce using rule 22 (declaration)
 
@@ -941,18 +954,18 @@ State 74
 
 State 75
 
-   30 boolean_expression: boolean_expression . LOG_OR boolean_expression
-   31                   | boolean_expression . LOG_AND boolean_expression
-   35                   | NOT boolean_expression .
+   29 boolean_expression: boolean_expression . LOG_OR boolean_expression
+   30                   | boolean_expression . LOG_AND boolean_expression
+   34                   | NOT boolean_expression .
 
-    $default  reduce using rule 35 (boolean_expression)
+    $default  reduce using rule 34 (boolean_expression)
 
 
 State 76
 
-   30 boolean_expression: boolean_expression . LOG_OR boolean_expression
-   31                   | boolean_expression . LOG_AND boolean_expression
-   36                   | '(' boolean_expression . ')'
+   29 boolean_expression: boolean_expression . LOG_OR boolean_expression
+   30                   | boolean_expression . LOG_AND boolean_expression
+   35                   | '(' boolean_expression . ')'
 
     LOG_AND  shift, and go to state 77
     LOG_OR   shift, and go to state 78
@@ -961,7 +974,7 @@ State 76
 
 State 77
 
-   31 boolean_expression: boolean_expression LOG_AND . boolean_expression
+   30 boolean_expression: boolean_expression LOG_AND . boolean_expression
 
     ID       shift, and go to state 9
     INTEGER  shift, and go to state 11
@@ -969,7 +982,7 @@ State 77
     '-'      shift, and go to state 18
     '('      shift, and go to state 58
 
-    variable            go to state 37
+    variable            go to state 33
     array               go to state 23
     boolean_expression  go to state 94
     expression          go to state 60
@@ -977,7 +990,7 @@ State 77
 
 State 78
 
-   30 boolean_expression: boolean_expression LOG_OR . boolean_expression
+   29 boolean_expression: boolean_expression LOG_OR . boolean_expression
 
     ID       shift, and go to state 9
     INTEGER  shift, and go to state 11
@@ -985,7 +998,7 @@ State 78
     '-'      shift, and go to state 18
     '('      shift, and go to state 58
 
-    variable            go to state 37
+    variable            go to state 33
     array               go to state 23
     boolean_expression  go to state 95
     expression          go to state 60
@@ -1001,67 +1014,67 @@ State 79
 
 State 80
 
-   33 boolean_expression: expression LOG_EQ . expression
+   32 boolean_expression: expression LOG_EQ . expression
 
     ID       shift, and go to state 9
     INTEGER  shift, and go to state 11
     '-'      shift, and go to state 18
 
-    variable    go to state 37
+    variable    go to state 33
     array       go to state 23
     expression  go to state 97
 
 
 State 81
 
-   41 relop: GE .
-
-    $default  reduce using rule 41 (relop)
-
-
-State 82
-
-   40 relop: LE .
+   40 relop: GE .
 
     $default  reduce using rule 40 (relop)
 
 
+State 82
+
+   39 relop: LE .
+
+    $default  reduce using rule 39 (relop)
+
+
 State 83
 
-   34 boolean_expression: expression NE . expression
+   33 boolean_expression: expression NE . expression
 
     ID       shift, and go to state 9
     INTEGER  shift, and go to state 11
     '-'      shift, and go to state 18
 
-    variable    go to state 37
+    variable    go to state 33
     array       go to state 23
     expression  go to state 98
 
 
 State 84
 
-   38 relop: GT .
+   37 relop: GT .
 
-    $default  reduce using rule 38 (relop)
+    $default  reduce using rule 37 (relop)
 
 
 State 85
 
-   39 relop: LT .
+   38 relop: LT .
 
-    $default  reduce using rule 39 (relop)
+    $default  reduce using rule 38 (relop)
 
 
 State 86
 
-   32 boolean_expression: expression relop . expression
+   31 boolean_expression: expression relop . expression
 
     ID       shift, and go to state 9
     INTEGER  shift, and go to state 11
     '-'      shift, and go to state 18
 
-    variable    go to state 37
+    variable    go to state 33
     array       go to state 23
     expression  go to state 99
 
@@ -1083,7 +1096,7 @@ State 88
     '-'      shift, and go to state 18
     '('      shift, and go to state 58
 
-    variable            go to state 37
+    variable            go to state 33
     array               go to state 23
     boolean_expression  go to state 101
     expression          go to state 60
@@ -1092,15 +1105,15 @@ State 88
 State 89
 
    20 array: array ']' '[' expression .
-   43 expression: expression . '+' expression
-   44           | expression . '-' expression
-   45           | expression . '/' expression
-   46           | expression . '*' expression
+   42 expression: expression . '+' expression
+   43           | expression . '-' expression
+   44           | expression . '/' expression
+   45           | expression . '*' expression
 
-    '+'  shift, and go to state 45
-    '-'  shift, and go to state 46
-    '*'  shift, and go to state 47
-    '/'  shift, and go to state 48
+    '-'  shift, and go to state 45
+    '*'  shift, and go to state 46
+    '/'  shift, and go to state 47
+    '+'  shift, and go to state 48
 
     $default  reduce using rule 20 (array)
 
@@ -1114,11 +1127,11 @@ State 90
     '-'      shift, and go to state 18
     '{'      shift, and go to state 102
 
-    variable    go to state 37
-    array       go to state 23
-    init_array  go to state 103
-    int_list    go to state 104
-    expression  go to state 105
+    variable      go to state 33
+    array         go to state 23
+    init_array    go to state 103
+    inside_array  go to state 104
+    expression    go to state 105
 
 
 State 91
@@ -1137,27 +1150,27 @@ State 92
 
 State 93
 
-   36 boolean_expression: '(' boolean_expression ')' .
+   35 boolean_expression: '(' boolean_expression ')' .
 
-    $default  reduce using rule 36 (boolean_expression)
+    $default  reduce using rule 35 (boolean_expression)
 
 
 State 94
 
-   30 boolean_expression: boolean_expression . LOG_OR boolean_expression
-   31                   | boolean_expression . LOG_AND boolean_expression
-   31                   | boolean_expression LOG_AND boolean_expression .
+   29 boolean_expression: boolean_expression . LOG_OR boolean_expression
+   30                   | boolean_expression . LOG_AND boolean_expression
+   30                   | boolean_expression LOG_AND boolean_expression .
 
-    $default  reduce using rule 31 (boolean_expression)
+    $default  reduce using rule 30 (boolean_expression)
 
 
 State 95
 
-   30 boolean_expression: boolean_expression . LOG_OR boolean_expression
-   30                   | boolean_expression LOG_OR boolean_expression .
-   31                   | boolean_expression . LOG_AND boolean_expression
+   29 boolean_expression: boolean_expression . LOG_OR boolean_expression
+   29                   | boolean_expression LOG_OR boolean_expression .
+   30                   | boolean_expression . LOG_AND boolean_expression
 
-    $default  reduce using rule 30 (boolean_expression)
+    $default  reduce using rule 29 (boolean_expression)
 
 
 State 96
@@ -1189,50 +1202,50 @@ State 96
 
 State 97
 
-   33 boolean_expression: expression LOG_EQ expression .
-   43 expression: expression . '+' expression
-   44           | expression . '-' expression
-   45           | expression . '/' expression
-   46           | expression . '*' expression
+   32 boolean_expression: expression LOG_EQ expression .
+   42 expression: expression . '+' expression
+   43           | expression . '-' expression
+   44           | expression . '/' expression
+   45           | expression . '*' expression
 
-    '+'  shift, and go to state 45
-    '-'  shift, and go to state 46
-    '*'  shift, and go to state 47
-    '/'  shift, and go to state 48
+    '-'  shift, and go to state 45
+    '*'  shift, and go to state 46
+    '/'  shift, and go to state 47
+    '+'  shift, and go to state 48
 
-    $default  reduce using rule 33 (boolean_expression)
+    $default  reduce using rule 32 (boolean_expression)
 
 
 State 98
 
-   34 boolean_expression: expression NE expression .
-   43 expression: expression . '+' expression
-   44           | expression . '-' expression
-   45           | expression . '/' expression
-   46           | expression . '*' expression
+   33 boolean_expression: expression NE expression .
+   42 expression: expression . '+' expression
+   43           | expression . '-' expression
+   44           | expression . '/' expression
+   45           | expression . '*' expression
 
-    '+'  shift, and go to state 45
-    '-'  shift, and go to state 46
-    '*'  shift, and go to state 47
-    '/'  shift, and go to state 48
+    '-'  shift, and go to state 45
+    '*'  shift, and go to state 46
+    '/'  shift, and go to state 47
+    '+'  shift, and go to state 48
 
-    $default  reduce using rule 34 (boolean_expression)
+    $default  reduce using rule 33 (boolean_expression)
 
 
 State 99
 
-   32 boolean_expression: expression relop expression .
-   43 expression: expression . '+' expression
-   44           | expression . '-' expression
-   45           | expression . '/' expression
-   46           | expression . '*' expression
+   31 boolean_expression: expression relop expression .
+   42 expression: expression . '+' expression
+   43           | expression . '-' expression
+   44           | expression . '/' expression
+   45           | expression . '*' expression
 
-    '+'  shift, and go to state 45
-    '-'  shift, and go to state 46
-    '*'  shift, and go to state 47
-    '/'  shift, and go to state 48
+    '-'  shift, and go to state 45
+    '*'  shift, and go to state 46
+    '/'  shift, and go to state 47
+    '+'  shift, and go to state 48
 
-    $default  reduce using rule 32 (boolean_expression)
+    $default  reduce using rule 31 (boolean_expression)
 
 
 State 100
@@ -1264,8 +1277,8 @@ State 100
 State 101
 
    13 statement: FOR '(' assignement ';' boolean_expression . ';' expression ')' '{' statement_list '}'
-   30 boolean_expression: boolean_expression . LOG_OR boolean_expression
-   31                   | boolean_expression . LOG_AND boolean_expression
+   29 boolean_expression: boolean_expression . LOG_OR boolean_expression
+   30                   | boolean_expression . LOG_AND boolean_expression
 
     LOG_AND  shift, and go to state 77
     LOG_OR   shift, and go to state 78
@@ -1274,52 +1287,50 @@ State 101
 
 State 102
 
-   26 init_array: '{' . init_array '}'
-   27           | '{' . init_array '}' ',' '{' int_list '}'
+   28 inside_array: '{' . init_array '}'
 
     ID       shift, and go to state 9
     INTEGER  shift, and go to state 11
     '-'      shift, and go to state 18
     '{'      shift, and go to state 102
 
-    variable    go to state 37
-    array       go to state 23
-    init_array  go to state 109
-    int_list    go to state 104
-    expression  go to state 105
+    variable      go to state 33
+    array         go to state 23
+    init_array    go to state 109
+    inside_array  go to state 104
+    expression    go to state 105
 
 
 State 103
 
    24 declaration: INT_TYPE array ']' ASSIGN '{' init_array . '}'
+   26 init_array: init_array . ',' inside_array
 
-    '}'  shift, and go to state 110
+    ','  shift, and go to state 110
+    '}'  shift, and go to state 111
 
 
 State 104
 
-   25 init_array: int_list .
-   29 int_list: int_list . ',' expression
-
-    ','  shift, and go to state 111
+   25 init_array: inside_array .
 
     $default  reduce using rule 25 (init_array)
 
 
 State 105
 
-   28 int_list: expression .
-   43 expression: expression . '+' expression
-   44           | expression . '-' expression
-   45           | expression . '/' expression
-   46           | expression . '*' expression
+   27 inside_array: expression .
+   42 expression: expression . '+' expression
+   43           | expression . '-' expression
+   44           | expression . '/' expression
+   45           | expression . '*' expression
 
-    '+'  shift, and go to state 45
-    '-'  shift, and go to state 46
-    '*'  shift, and go to state 47
-    '/'  shift, and go to state 48
+    '-'  shift, and go to state 45
+    '*'  shift, and go to state 46
+    '/'  shift, and go to state 47
+    '+'  shift, and go to state 48
 
-    $default  reduce using rule 28 (int_list)
+    $default  reduce using rule 27 (inside_array)
 
 
 State 106
@@ -1345,37 +1356,40 @@ State 108
     INTEGER  shift, and go to state 11
     '-'      shift, and go to state 18
 
-    variable    go to state 37
+    variable    go to state 33
     array       go to state 23
     expression  go to state 114
 
 
 State 109
 
-   26 init_array: '{' init_array . '}'
-   27           | '{' init_array . '}' ',' '{' int_list '}'
+   26 init_array: init_array . ',' inside_array
+   28 inside_array: '{' init_array . '}'
 
+    ','  shift, and go to state 110
     '}'  shift, and go to state 115
 
 
 State 110
 
-   24 declaration: INT_TYPE array ']' ASSIGN '{' init_array '}' .
-
-    $default  reduce using rule 24 (declaration)
-
-
-State 111
-
-   29 int_list: int_list ',' . expression
+   26 init_array: init_array ',' . inside_array
 
     ID       shift, and go to state 9
     INTEGER  shift, and go to state 11
     '-'      shift, and go to state 18
+    '{'      shift, and go to state 102
 
-    variable    go to state 37
-    array       go to state 23
-    expression  go to state 116
+    variable      go to state 33
+    array         go to state 23
+    inside_array  go to state 116
+    expression    go to state 105
+
+
+State 111
+
+   24 declaration: INT_TYPE array ']' ASSIGN '{' init_array '}' .
+
+    $default  reduce using rule 24 (declaration)
 
 
 State 112
@@ -1398,66 +1412,47 @@ State 113
 State 114
 
    13 statement: FOR '(' assignement ';' boolean_expression ';' expression . ')' '{' statement_list '}'
-   43 expression: expression . '+' expression
-   44           | expression . '-' expression
-   45           | expression . '/' expression
-   46           | expression . '*' expression
+   42 expression: expression . '+' expression
+   43           | expression . '-' expression
+   44           | expression . '/' expression
+   45           | expression . '*' expression
 
-    '+'  shift, and go to state 45
-    '-'  shift, and go to state 46
-    '*'  shift, and go to state 47
-    '/'  shift, and go to state 48
+    '-'  shift, and go to state 45
+    '*'  shift, and go to state 46
+    '/'  shift, and go to state 47
+    '+'  shift, and go to state 48
     ')'  shift, and go to state 118
 
 
 State 115
 
-   26 init_array: '{' init_array '}' .
-   27           | '{' init_array '}' . ',' '{' int_list '}'
+   28 inside_array: '{' init_array '}' .
 
-    ','  shift, and go to state 119
-
-    $default  reduce using rule 26 (init_array)
+    $default  reduce using rule 28 (inside_array)
 
 
 State 116
 
-   29 int_list: int_list ',' expression .
-   43 expression: expression . '+' expression
-   44           | expression . '-' expression
-   45           | expression . '/' expression
-   46           | expression . '*' expression
+   26 init_array: init_array ',' inside_array .
 
-    '+'  shift, and go to state 45
-    '-'  shift, and go to state 46
-    '*'  shift, and go to state 47
-    '/'  shift, and go to state 48
-
-    $default  reduce using rule 29 (int_list)
+    $default  reduce using rule 26 (init_array)
 
 
 State 117
 
    11 statement: IF '(' boolean_expression ')' '{' statement_list '}' ELSE . '{' statement_list '}'
 
-    '{'  shift, and go to state 120
+    '{'  shift, and go to state 119
 
 
 State 118
 
    13 statement: FOR '(' assignement ';' boolean_expression ';' expression ')' . '{' statement_list '}'
 
-    '{'  shift, and go to state 121
+    '{'  shift, and go to state 120
 
 
 State 119
-
-   27 init_array: '{' init_array '}' ',' . '{' int_list '}'
-
-    '{'  shift, and go to state 122
-
-
-State 120
 
    11 statement: IF '(' boolean_expression ')' '{' statement_list '}' ELSE '{' . statement_list '}'
 
@@ -1474,7 +1469,7 @@ State 120
 
     $default  reduce using rule 4 (statement_list)
 
-    statement_list  go to state 123
+    statement_list  go to state 121
     statement       go to state 20
     assignement     go to state 21
     variable        go to state 22
@@ -1483,7 +1478,7 @@ State 120
     expression      go to state 25
 
 
-State 121
+State 120
 
    13 statement: FOR '(' assignement ';' boolean_expression ';' expression ')' '{' . statement_list '}'
 
@@ -1500,7 +1495,7 @@ State 121
 
     $default  reduce using rule 4 (statement_list)
 
-    statement_list  go to state 124
+    statement_list  go to state 122
     statement       go to state 20
     assignement     go to state 21
     variable        go to state 22
@@ -1509,59 +1504,29 @@ State 121
     expression      go to state 25
 
 
-State 122
-
-   27 init_array: '{' init_array '}' ',' '{' . int_list '}'
-
-    ID       shift, and go to state 9
-    INTEGER  shift, and go to state 11
-    '-'      shift, and go to state 18
-
-    variable    go to state 37
-    array       go to state 23
-    int_list    go to state 125
-    expression  go to state 105
-
-
-State 123
+State 121
 
    11 statement: IF '(' boolean_expression ')' '{' statement_list '}' ELSE '{' statement_list . '}'
 
-    '}'  shift, and go to state 126
+    '}'  shift, and go to state 123
 
 
-State 124
+State 122
 
    13 statement: FOR '(' assignement ';' boolean_expression ';' expression ')' '{' statement_list . '}'
 
-    '}'  shift, and go to state 127
+    '}'  shift, and go to state 124
 
 
-State 125
-
-   27 init_array: '{' init_array '}' ',' '{' int_list . '}'
-   29 int_list: int_list . ',' expression
-
-    ','  shift, and go to state 111
-    '}'  shift, and go to state 128
-
-
-State 126
+State 123
 
    11 statement: IF '(' boolean_expression ')' '{' statement_list '}' ELSE '{' statement_list '}' .
 
     $default  reduce using rule 11 (statement)
 
 
-State 127
+State 124
 
    13 statement: FOR '(' assignement ';' boolean_expression ';' expression ')' '{' statement_list '}' .
 
     $default  reduce using rule 13 (statement)
-
-
-State 128
-
-   27 init_array: '{' init_array '}' ',' '{' int_list '}' .
-
-    $default  reduce using rule 27 (init_array)

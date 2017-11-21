@@ -2,20 +2,31 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "list.h"
+#include "quad.h"
   void yyerror( char*);
   int yylex();
   extern FILE* yyin;
+  symbol* tds = NULL;
+
 %}
 
 %token ID INT_TYPE VOID_TYPE COMMENT INTEGER PRINTI PRINTF STRING MAIN RETURN
 %token IF ELSE WHILE DO FOR INCR DECR LOG_AND LOG_OR LOG_EQ GE LE NE GT LT NOT
-%right ASSIGN 
-%left INCR DECR ',' '+' '-' '*' '/' NOT LOG_AND LOG_EQ GE LE NE LOG_OR GT LT 
+%left INCR DECR ',' '-' '*' '/' '+' LOG_AND NE GE LE GT LT LOG_OR
+%right ASSIGN NOT
 
-// TODO : assignement -> assignement list 
-// FOR sans accolades ?
-// left & right
-//empty
+%union{
+  char* string;
+  int value;
+  symbol* symbol;
+}
+
+%type <symbol*> expression
+%type <string> variable
+%type <string> ID
+%type <int> INTEGER
+
 %%
 s: program { printf("Match ! \n"); return 0;} ;
 program: INT_TYPE MAIN '(' ')' '{' statement_list '}' ;
@@ -31,7 +42,7 @@ statement: assignement ';'
   | IF '('boolean_expression')' '{'statement_list'}' ELSE '{'statement_list'}'
   | WHILE '(' boolean_expression ')' '{'statement_list'}'
   | FOR '('assignement';' boolean_expression ';' expression ')' '{'statement_list'}'
-  | RETURN INTEGER ';'
+  | RETURN expression ';'
   ;
 
 assignement: variable ASSIGN expression
@@ -52,13 +63,16 @@ declaration: INT_TYPE ID
   | INT_TYPE array']' ASSIGN '{'init_array'}'
   ;
 
-init_array:  int_list
-  | '{'init_array'}'
-  | '{'init_array'}' ',' '{'int_list'}'
+/* array init :  inside array or multiple arrays */
+
+init_array:  inside_array
+  | init_array ',' inside_array
   ;
 
-int_list:  expression 
-  | int_list ',' expression
+/* inside an array : arithmetic expression or another array */
+
+inside_array:  expression 
+  | '{'init_array'}'
   ;
 
 boolean_expression: boolean_expression LOG_OR boolean_expression
@@ -80,12 +94,34 @@ relop: GT
 expression: '-' expression
   | expression '+' expression
   | expression '-' expression
-  | expression '/' expression
+  | expression '/' expression {
+    symbol* tmp = new_temp()
+  }
   | expression '*' expression
-  | ID INCR
-  | ID DECR  
-  | variable
-  | INTEGER 
+  | ID INCR {
+    symbol *tmp;
+    if(! (tmp=lookup(ds, $1)){
+      tmp->value++;
+    } else {
+      fprintf(stderr, "id++ with unknown id \n");
+    }
+  }  
+
+  | ID DECR {
+      symbol *tmp;
+      if(! (tmp=lookup(tds, $1))){
+        tmp->value--;
+      } else {
+        fprintf(stderr, "id++ with unknown id \n");
+      }
+    }  
+
+  | variable 
+    {
+      if(!lookup(tds, $1)) 
+        add(&tds, $1);
+    }
+  | INTEGER { new_temp(&tds, $1) }
 
   ;
 %%
