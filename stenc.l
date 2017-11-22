@@ -2,7 +2,11 @@
   #include <stdlib.h>
   #include <stdio.h>
   #include <string.h>
-  #include "stenc.tab.h"
+  #include "list.h"
+  #include "quad.h"
+  #include "y.tab.h"
+  #include "y.tab.h"
+
 %}
 
 
@@ -48,8 +52,8 @@ string  \".*\"
 "/"      { return yytext[0];}
 "printi" { return PRINTI;}
 "printf" { return PRINTF;}
-{id} { return ID;}
-{int}  { return INTEGER;}
+{id} { yylval.string = strdup(yytext);return ID;}
+{int}  { yylval.value = atoi(yytext);return INTEGER;}
 {comment}  { return COMMENT;}
 {string}  { return STRING;}
 

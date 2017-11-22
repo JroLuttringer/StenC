@@ -3,22 +3,26 @@
 
 #include <stdlib.h>
 #include "list.h"
-enum en_inst {
-    addi, soustr, multi, divi 
+enum op {
+    Q_ADD, Q_SUB, Q_MULT, Q_DIV, Q_ASSIGN
 };
 
-typedef enum en_inst instr;
-
+typedef enum op op;
+typedef struct quad quad;
 typedef struct quad {
-    instr i;
+    op i;
     symbol* arg1;
     symbol* arg2;
     symbol* result;
     struct quad* next;
 } quad;
 
-quad* quad_gen( instr i, symbol* arg1, symbol* arg2, symbol* result; );
+quad* quad_gen(op , symbol* , symbol* , symbol* );
 
-void quad_add(quad** head, quad* el);
+void quad_add(quad**, quad*);
+quad* concat_quad(quad*,quad*);
+void print_quads(quad* head);
+
+
 
 #endif 

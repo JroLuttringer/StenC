@@ -16,7 +16,8 @@ struct symbol {
 };
 typedef struct symbol symbol;
 
-symbol* new_temp(symbol** , int);
+symbol* new_temp(symbol**);
+symbol* new_integer(symbol** , int );
 symbol* lookup(symbol*, char*);
 void print_symbol(symbol*);
 symbol* add(symbol** head, char* name);
