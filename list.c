@@ -27,7 +27,7 @@ symbol* new_integer(symbol** head, int value){
     s->is_constant=true;
     s->value = value;
     s->name = (char*)malloc(NAME_LENGTH);
-    snprintf(s->name, NAME_LENGTH, "@@temp_%d", value); 
+    snprintf(s->name, NAME_LENGTH, "@@const_%d", value); 
     s->next = NULL;
     symbol* tmp = *head;
     if(tmp == NULL) *head = s;

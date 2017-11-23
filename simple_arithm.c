@@ -1,8 +1,8 @@
 int main(){
   int x;
-  x = 5 + 5;
-  int y;
-  y = 10 *5;
-  int z;
-  z = x + y;
+  x = 1;
+  x++;
+  x--;
+  
+  return 1000;
 }

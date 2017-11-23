@@ -44,7 +44,7 @@ s: program {
    return 0;
 }
 ;
-program: INT_TYPE MAIN '(' ')' '{' statement_list '}' {
+program: INT_TYPE MAIN '(' ')' '{' statement_list RETURN expression ';' '}' {
   $$.code = NULL;
   $$.code = concat_quad($$.code, $6.code);
 }
@@ -67,6 +67,7 @@ statement: assignement ';' {
     $$.code = NULL;
     $$.code = concat_quad($$.code, $1.code);
   } 
+  | COMMENT
   | PRINTI '(' variable ')' ';' 
   | PRINTF '(' STRING ')' ';'
   | IF '('boolean_expression')' '{'statement_list'}'
@@ -108,6 +109,7 @@ declaration: INT_TYPE ID {
     add(&tds, $2);
   } else {
     fprintf(stderr, "redefinition of %s\n", $2);
+    return 0;
   }
 }
   | INT_TYPE ID ASSIGN expression
@@ -146,6 +148,7 @@ relop: GT
 expression: '-' expression {}
   | expression '+' expression {
     $$.result = new_temp(&tds);
+ $$.code = NULL;
     quad* q   = quad_gen(Q_ADD, $1.result, $3.result, $$.result);
     $$.code   = concat_quad($$.code, $1.code);
     $$.code   = concat_quad($$.code, $3.code);
@@ -159,6 +162,7 @@ expression: '-' expression {}
   | expression '-' expression{
     $$.result = new_temp(&tds);
     quad* q   = quad_gen(Q_SUB, $1.result, $3.result, $$.result);
+ $$.code = NULL;
     $$.code   = concat_quad($$.code, $1.code);
     $$.code   = concat_quad($$.code, $3.code);
     $$.code   = concat_quad($$.code, q);
@@ -166,6 +170,7 @@ expression: '-' expression {}
   | expression '/' expression {
     $$.result = new_temp(&tds);
     quad* q   = quad_gen(Q_DIV, $1.result, $3.result, $$.result);
+ $$.code = NULL;
     $$.code   = concat_quad($$.code, $1.code);
     $$.code   = concat_quad($$.code, $3.code);
     $$.code   = concat_quad($$.code, q);
@@ -173,17 +178,47 @@ expression: '-' expression {}
   | expression '*' expression {
     $$.result = new_temp(&tds);
     quad* q   = quad_gen(Q_MULT, $1.result, $3.result, $$.result);
+ $$.code = NULL;
     $$.code   = concat_quad($$.code, $1.code);
     $$.code   = concat_quad($$.code, $3.code);
     $$.code   = concat_quad($$.code, q);
   }
   | ID INCR {
-
-  }  
+     $$.result = new_temp(&tds);
+     symbol* s = lookup(tds, $1);
+     if(!s) {
+	fprintf(stderr, "unknown variable %s used in arith. expr\n", $1);
+        return 0;
+     }
+     
+     symbol* cst_1 = lookup(tds, "@@const_1");
+     if(!cst_1){
+ 	cst_1 = new_integer(&tds, 1);
+     }
+     quad* q = quad_gen(Q_ADD, s, cst_1, $$.result);
+     $$.code = NULL;
+	$$.code = concat_quad($$.code,q);
+   }
+    
 
   | ID DECR {
+     $$.result = new_temp(&tds);
+     symbol* s = lookup(tds, $1);
+     if(!s) {
+	fprintf(stderr, "unknown variable %s used in arith. expr\n", $1);
+        return 0;
+     }
+     
+     symbol* cst_1 = lookup(tds, "@@const_1");
+     if(!cst_1){
+ 	cst_1 = new_integer(&tds, 1);
+     }
+     quad* q = quad_gen(Q_SUB, s, cst_1, $$.result);
 
-    }  
+     $$.code = NULL;
+	$$.code = concat_quad($$.code,q);
+  }
+ 
 
   | variable 
     {
@@ -197,7 +232,7 @@ expression: '-' expression {}
     }
   | INTEGER { 
     char tmp_name[256];
-    sprintf(tmp_name,"%s%d","@@temp_",$1);
+    sprintf(tmp_name,"%s%d","@@const_",$1);
     symbol* s = lookup(tds, tmp_name);
     if(s == NULL)
       s=new_integer(&tds, $1); 
