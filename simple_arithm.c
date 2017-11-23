@@ -3,6 +3,7 @@ int main(){
   x = 1;
   x++;
   x--;
+  x = -x;
   
   return 1000;
 }

@@ -14,7 +14,7 @@
 
 %token ID INT_TYPE VOID_TYPE COMMENT INTEGER PRINTI PRINTF STRING MAIN RETURN
 %token IF ELSE WHILE DO FOR INCR DECR LOG_AND LOG_OR LOG_EQ GE LE NE GT LT NOT
-%left INCR DECR ',' '-' '*' '/' '+' LOG_AND NE GE LE GT LT LOG_OR
+%left INCR DECR ',' '-' '*' '/' '+' LOG_AND NE GE LE GT LT LOG_OR NEG
 %right ASSIGN NOT
 
 %union{
@@ -160,7 +160,15 @@ relop: GT
   ;
 
 expression: 
-  '-' expression {}
+  '-' expression %prec NEG
+  {
+    symbol* minus_one = new_integer(&tds,-1);
+    symbol* s = new_temp(&tds);
+    $$.result = s;
+    quad* q = quad_gen(Q_MULT, minus_one, $2.result, $$.result);
+    $$.code = NULL;
+    $$.code = concat_quad($$.code, q);
+  }
   | expression '+' expression 
   {
     $$.result = new_temp(&tds);
@@ -200,10 +208,14 @@ expression:
     $$.code   = concat_quad($$.code, $3.code);
     $$.code   = concat_quad($$.code, q);
   }
+  | '('expression')'
+  {
+    $$.code = $2.code;
+    $$.result = $2.result;
+  }
 
   | ID INCR 
   {
-    $$.result = new_temp(&tds);
     symbol* s = lookup(tds, $1);
     if(!s) {
       fprintf(stderr, "unknown variable %s used in arith. expr\n", $1);
@@ -213,14 +225,14 @@ expression:
     if(!cst_1){
       cst_1 = new_integer(&tds, 1);
     }
-    quad* q = quad_gen(Q_ADD, s, cst_1, $$.result);
+    $$.result = s;
+    quad* q = quad_gen(Q_ADD, cst_1, s, s);
     $$.code = NULL;
-    $$.code = concat_quad($$.code,q);
+    $$.code = concat_quad($$.code, q);
   }
 
   | ID DECR 
   {
-    $$.result = new_temp(&tds);
     symbol* s = lookup(tds, $1);
     if(!s) {
       fprintf(stderr, "unknown variable %s used in arith. expr\n", $1);
@@ -230,9 +242,11 @@ expression:
     if(!cst_1){
       cst_1 = new_integer(&tds, 1);
     }
-    quad* q = quad_gen(Q_SUB, s, cst_1, $$.result);
+    $$.result = s;
+    quad* q = quad_gen(Q_SUB, cst_1, s, s);
     $$.code = NULL;
-    $$.code = concat_quad($$.code,q);
+    $$.code = concat_quad($$.code, q);
+
   }
 
   | variable 
