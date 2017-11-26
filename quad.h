@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include "list.h"
 enum op {
-    Q_ADD, Q_SUB, Q_MULT, Q_DIV, Q_ASSIGN
+    Q_ADD, Q_SUB, Q_MULT, Q_DIV, Q_ASSIGN, Q_PRINTI
 };
 
 typedef enum op op;

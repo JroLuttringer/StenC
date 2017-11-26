@@ -1,5 +1,6 @@
 %{
   #include "list.h"
+  #include "genmips.h"
   #include "quad.h"
   #include <stdio.h>
   #include <stdlib.h>
@@ -14,8 +15,8 @@
 
 %token ID INT_TYPE VOID_TYPE COMMENT INTEGER PRINTI PRINTF STRING MAIN RETURN
 %token IF ELSE WHILE DO FOR INCR DECR LOG_AND LOG_OR LOG_EQ GE LE NE GT LT NOT
-%left INCR DECR ',' '-' '*' '/' '+' LOG_AND NE GE LE GT LT LOG_OR NEG
-%right ASSIGN NOT
+%left INCR DECR ',' '-' '*' '/' '+' ')' LOG_AND NE GE LE GT LT LOG_OR NEG
+%right ASSIGN NOT '('
 
 %union{
   char* string;
@@ -41,6 +42,12 @@ s: program
   printf("==== QUADS ======================================================\n"); 
   print_quads($$.code);
   printf("=================================================================\n\n");
+  FILE* fp = fopen("simple_arithm.asm", "w");
+  gen_data(fp, tds);
+  gen_code(fp, $$.code);
+  fclose(fp);
+
+
   return 0;
 };
 
@@ -75,8 +82,14 @@ statement:
     $$.code = concat_quad($$.code, $1.code);
   } 
   | COMMENT
-  | PRINTI '(' variable ')' ';' 
-  | PRINTF '(' STRING ')' ';'
+  | PRINTI '(' expression ')' ';' {
+    $$.code = NULL;
+    quad* q = quad_gen(Q_PRINTI, NULL, NULL, $3.result);
+    $$.code = concat_quad($$.code, q); 
+  }
+  | PRINTF '(' STRING ')' ';' {
+    
+  }
   | IF '('boolean_expression')' '{'statement_list'}'
   | IF '('boolean_expression')' '{'statement_list'}' ELSE '{'statement_list'}'
   | WHILE '(' boolean_expression ')' '{'statement_list'}'
@@ -150,7 +163,6 @@ boolean_expression: boolean_expression LOG_OR boolean_expression
   | expression NE expression
   | NOT boolean_expression
   | '('boolean_expression')'
-  | expression
   ;
 
 relop: GT
@@ -221,7 +233,7 @@ expression:
       fprintf(stderr, "unknown variable %s used in arith. expr\n", $1);
       return 0;
     }
-    symbol* cst_1 = lookup(tds, "@@const_1");
+    symbol* cst_1 = lookup(tds, "__const_1"); //TODO @
     if(!cst_1){
       cst_1 = new_integer(&tds, 1);
     }
@@ -238,7 +250,7 @@ expression:
       fprintf(stderr, "unknown variable %s used in arith. expr\n", $1);
       return 0;
     }
-    symbol* cst_1 = lookup(tds, "@@const_1");
+    symbol* cst_1 = lookup(tds, "__const_1");
     if(!cst_1){
       cst_1 = new_integer(&tds, 1);
     }
@@ -262,7 +274,11 @@ expression:
   | INTEGER 
   { 
     char tmp_name[256];
-    sprintf(tmp_name,"%s%d","@@const_",$1);
+    if($1 >= 0)
+      sprintf(tmp_name,"%s%d","__const_",$1);
+    else
+      sprintf(tmp_name,"%s%d","__negconst_",$1*-1);
+  
     symbol* s = lookup(tds, tmp_name);
     if(s == NULL)
       s=new_integer(&tds, $1); 

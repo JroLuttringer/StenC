@@ -6,7 +6,7 @@ symbol* new_temp(symbol** head){
     s->is_constant=false;
     s->value = 0; 
     s->name = (char*)malloc(NAME_LENGTH);
-    snprintf(s->name, NAME_LENGTH, "@@temp_%d", nb++); 
+    snprintf(s->name, NAME_LENGTH, "__temp_%d", nb++); 
     s->next = NULL;
 
 
@@ -27,7 +27,11 @@ symbol* new_integer(symbol** head, int value){
     s->is_constant=true;
     s->value = value;
     s->name = (char*)malloc(NAME_LENGTH);
-    snprintf(s->name, NAME_LENGTH, "@@const_%d", value); 
+    if(value >=0)
+        snprintf(s->name, NAME_LENGTH, "__const_%d", value); 
+    else
+        snprintf(s->name, NAME_LENGTH, "__negconst_%d", value*-1); 
+  
     s->next = NULL;
     symbol* tmp = *head;
     if(tmp == NULL) *head = s;

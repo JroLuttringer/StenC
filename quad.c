@@ -58,7 +58,14 @@ void print_quads(quad* head){
         if(tmp->i == Q_ASSIGN){
             printf("ASSIGN\t\t");
         }
-
+        if(tmp->i == Q_PRINTI){
+            printf("PRINTI");
+        }
+        if(tmp->arg1 == NULL){
+            printf("\t\t%s",tmp->result->name);
+            tmp = tmp -> next;
+            continue;
+        }
         if(tmp -> arg1 -> is_constant){
             printf("%d\t\t", tmp->arg1->value);
         } else {

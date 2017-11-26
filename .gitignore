@@ -4,3 +4,6 @@
 *.o
 lex.yy.c
 *.output
+*.asm
+*.output
+stenc

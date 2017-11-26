@@ -1,9 +1,9 @@
 int main(){
   int x;
-  x = 1;
+  x = 10+5;
   x++;
-  x--;
   x = -x;
+  printi(x);
   
   return 1000;
 }
