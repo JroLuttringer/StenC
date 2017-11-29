@@ -4,7 +4,7 @@ YACC = yacc -d -v
 CFLAGS = -O2 -Wall
 LDFLAGS = -ly -lfl -Iinclude # Linux: -lfl / OSX: -ll
 EXEC = stenc
-SRC = list_quad.c quad.c list.c genmips.c
+SRC = quad.c list.c genmips.c quad_list.c
 OBJ = $(SRC:.c=.o)
 
 all: $(OBJ) y.tab.c lex.yy.c

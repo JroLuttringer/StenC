@@ -13,10 +13,17 @@
 
 %}
 
-%token ID INT_TYPE VOID_TYPE COMMENT INTEGER PRINTI PRINTF STRING MAIN RETURN
+%token ID INT_TYPE VOID_TYPE COMMENT INTEGER PRINTI PRINTF STRING MAIN RETURN ASSIGN
 %token IF ELSE WHILE DO FOR INCR DECR LOG_AND LOG_OR LOG_EQ GE LE NE GT LT NOT
-%left INCR DECR ',' '-' '*' '/' '+' ')' LOG_AND NE GE LE GT LT LOG_OR NEG
-%right ASSIGN NOT '('
+%left ','  
+%left LOG_OR
+%left LOG_AND
+%left LOG_EQ NE
+%left GE LE GT LT
+%left '+' '-'
+%left '*' '/'
+%right NEG NOT
+%left INCR DECR 
 
 %union{
   char* string;
@@ -31,7 +38,7 @@
 %type <symbol> variable
 %type <string> ID
 %type <value> INTEGER
-%type <expr> expression statement statement_list program s assignement
+%type <expr> expression statement statement_list program s assignement declaration
 
 %%
 s: program 
@@ -85,6 +92,7 @@ statement:
   | PRINTI '(' expression ')' ';' {
     $$.code = NULL;
     quad* q = quad_gen(Q_PRINTI, NULL, NULL, $3.result);
+    $$.code = concat_quad($$.code, $3.code);
     $$.code = concat_quad($$.code, q); 
   }
   | PRINTF '(' STRING ')' ';' {
@@ -100,7 +108,12 @@ statement:
 assignement: 
   variable ASSIGN expression 
   {
-    quad* q = quad_gen(Q_ASSIGN, $3.result, NULL, $1);
+    symbol* s = lookup(tds, $1->name);
+    if(s == NULL) {
+      fprintf(stderr, "Unknown variable %s in assignement\n", $1->name);
+      return 0;
+    }
+    quad* q = quad_gen(Q_ASSIGN, $3.result, NULL, s);
     $$.result = q->result;
     $$.code = NULL;
     $$.code = concat_quad($$.code, $3.code);
@@ -138,8 +151,20 @@ declaration:
       return 0;
     }
   }
-
-  | INT_TYPE ID ASSIGN expression
+  | INT_TYPE ID ASSIGN expression {
+    symbol* s;
+    if((s=lookup(tds, $2)) == NULL){
+      s=add(&tds, $2);
+    } else {
+      fprintf(stderr, "redefinition of %s\n", $2);
+      return 0;
+    }
+    quad* q = quad_gen(Q_ASSIGN, $4.result, NULL, s);
+    $$.result = q->result;
+    $$.code = NULL;
+    $$.code = concat_quad($$.code, $4.code);
+    $$.code = concat_quad($$.code, q);
+  }
   | INT_TYPE array']'
   | INT_TYPE array']' ASSIGN '{'init_array'}'
   ;
@@ -172,16 +197,7 @@ relop: GT
   ;
 
 expression: 
-  '-' expression %prec NEG
-  {
-    symbol* minus_one = new_integer(&tds,-1);
-    symbol* s = new_temp(&tds);
-    $$.result = s;
-    quad* q = quad_gen(Q_MULT, minus_one, $2.result, $$.result);
-    $$.code = NULL;
-    $$.code = concat_quad($$.code, q);
-  }
-  | expression '+' expression 
+  expression '+' expression 
   {
     $$.result = new_temp(&tds);
     $$.code = NULL;
@@ -193,14 +209,29 @@ expression:
 
   | expression '-' expression
   {
+    
     $$.result = new_temp(&tds);
     quad* q   = quad_gen(Q_SUB, $1.result, $3.result, $$.result);
-    $$.code = NULL;
+    $$.code   = NULL;
     $$.code   = concat_quad($$.code, $1.code);
     $$.code   = concat_quad($$.code, $3.code);
     $$.code   = concat_quad($$.code, q);
   }
-
+  | '-' expression %prec NEG
+  {
+    printf("-E\n");
+    symbol* minus_one = lookup(tds, "__negconst_1");
+    if (minus_one == NULL){
+      minus_one = new_integer(&tds,-1);
+    }    
+    symbol* s = new_temp(&tds);
+    $$.result = s;
+    //printf("result of E in -E is %d\n", $2.result.value);
+    quad* q = quad_gen(Q_MULT, minus_one, $2.result, $$.result);
+    $$.code = NULL;
+    $$.code = concat_quad($$.code, $2.code);
+    $$.code = concat_quad($$.code, q);
+  }
   | expression '/' expression 
   {
     $$.result = new_temp(&tds);
@@ -238,7 +269,7 @@ expression:
       cst_1 = new_integer(&tds, 1);
     }
     $$.result = s;
-    quad* q = quad_gen(Q_ADD, cst_1, s, s);
+    quad* q = quad_gen(Q_ADD, s, cst_1, s);
     $$.code = NULL;
     $$.code = concat_quad($$.code, q);
   }
@@ -255,7 +286,7 @@ expression:
       cst_1 = new_integer(&tds, 1);
     }
     $$.result = s;
-    quad* q = quad_gen(Q_SUB, cst_1, s, s);
+    quad* q = quad_gen(Q_SUB, s, cst_1, s);
     $$.code = NULL;
     $$.code = concat_quad($$.code, q);
 
@@ -276,8 +307,10 @@ expression:
     char tmp_name[256];
     if($1 >= 0)
       sprintf(tmp_name,"%s%d","__const_",$1);
-    else
+    else{
       sprintf(tmp_name,"%s%d","__negconst_",$1*-1);
+      printf("lookup : %s \n", tmp_name);
+    }
   
     symbol* s = lookup(tds, tmp_name);
     if(s == NULL)
@@ -293,6 +326,11 @@ void yyerror (char *s) {
 int main(int argc, char** argv) {
   FILE* fp = fopen("simple_arithm.c", "r");
   yyin = fp;
+  int a = 10;
+  int __b = 5;
+  int y = a*a + 2*++a*__b+ __b*__b;
+  int x = (a+__b)*(a+__b);
+  printf("%d %d %d\n", __b,x, y);
   yyparse();
   printf ("\n\n");
   printf("==== TDS ========================================================\n"); 

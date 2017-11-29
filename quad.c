@@ -61,6 +61,34 @@ void print_quads(quad* head){
         if(tmp->i == Q_PRINTI){
             printf("PRINTI");
         }
+        if(tmp->i == Q_AND){
+            printf("&&\t\t");            
+        }
+        if(tmp->i == Q_OR){
+            printf("||\t\t");
+        }
+        if(tmp->i == Q_LT){
+            printf("<\t\t");           
+        }
+        if(tmp->i == Q_GT){
+            printf(">\t\t");            
+        }
+        if(tmp->i == Q_LE){
+            printf("<=\t\t");            
+        }
+        if(tmp->i == Q_GE){
+            printf(">=\t\t");            
+        }
+        if(tmp->i == Q_EQ){
+            printf("==\t\t");            
+        }
+        if(tmp->i == Q_NE){
+            printf("!=\t\t");            
+        }
+        if(tmp->i == Q_NOT){
+            printf("!\t\t");            
+        }
+
         if(tmp->arg1 == NULL){
             printf("\t\t%s",tmp->result->name);
             tmp = tmp -> next;
