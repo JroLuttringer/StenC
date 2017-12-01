@@ -42,78 +42,106 @@ void print_quads(quad* head){
     quad* tmp = head;
     if( tmp == NULL) return;
     while(tmp){
+        switch(tmp->i){
+            case Q_GOTO :
+                printf("GOTO\t\t");
+            break;
 
-        if(tmp->i == Q_ADD) {
-            printf("ADD\t\t");
-        } 
-        if(tmp->i == Q_SUB) {
-            printf("SUB\t\t");
-        } 
-        if(tmp->i == Q_MULT) {
-            printf("MULT\t\t");
-        } 
-        if(tmp->i == Q_DIV) {
-            printf("DIV\t\t");
-        } 
-        if(tmp->i == Q_ASSIGN){
-            printf("ASSIGN\t\t");
-        }
-        if(tmp->i == Q_PRINTI){
-            printf("PRINTI");
-        }
-        if(tmp->i == Q_AND){
-            printf("&&\t\t");            
-        }
-        if(tmp->i == Q_OR){
-            printf("||\t\t");
-        }
-        if(tmp->i == Q_LT){
-            printf("<\t\t");           
-        }
-        if(tmp->i == Q_GT){
-            printf(">\t\t");            
-        }
-        if(tmp->i == Q_LE){
-            printf("<=\t\t");            
-        }
-        if(tmp->i == Q_GE){
-            printf(">=\t\t");            
-        }
-        if(tmp->i == Q_EQ){
-            printf("==\t\t");            
-        }
-        if(tmp->i == Q_NE){
-            printf("!=\t\t");            
-        }
-        if(tmp->i == Q_NOT){
-            printf("!\t\t");            
+            case Q_LABEL:
+                printf("PUT_LABEL:\t");
+            break;
+
+            case Q_ADD  :
+                printf("ADD\t\t");
+            break;
+
+            case Q_SUB  :
+                printf("SUB\t\t");
+            break;
+
+            case Q_MULT  :
+                printf("MULT\t\t");
+            break;
+
+            case Q_DIV  :
+                printf("DIV\t\t");
+            break;
+
+            case Q_ASSIGN :
+                printf("ASSIGN\t\t");
+            break;
+
+            case Q_PRINTI :
+                printf("PRINTI\t\t");
+            break;
+
+            case Q_AND :
+                printf("&&\t\t");            
+            break;
+
+            case Q_OR :
+                printf("||\t\t");
+            break;
+
+            case Q_LT : 
+                printf("<\t\t");           
+            break;
+
+            case Q_GT: 
+                printf(">\t\t");            
+            break;
+
+            case Q_LE : 
+                printf("<=\t\t");            
+            break;
+
+            case Q_GE : 
+                printf(">=\t\t");            
+            break;
+
+            case Q_EQ : 
+                printf("==\t\t");            
+            break;
+
+            case Q_NE : 
+                printf("!=\t\t");            
+            break;
+
+            case Q_NOT :
+                printf("!\t\t");            
+            break;
         }
 
-        if(tmp->arg1 == NULL){
-            printf("\t\t%s",tmp->result->name);
-            tmp = tmp -> next;
-            continue;
-        }
-        if(tmp -> arg1 -> is_constant){
-            printf("%d\t\t", tmp->arg1->value);
+        if(!tmp->arg1){
+            printf("%10s\t\t", "NULL");
         } else {
-            printf("%s\t\t", tmp -> arg1-> name);
-        } 
-        if(tmp -> arg2 != NULL ){       
-            if(tmp -> arg2 -> is_constant){
-                printf("%d\t\t", tmp->arg2->value);
+            if(tmp->arg1->is_constant){
+                printf("%10d\t\t", tmp->arg1->value);
             } else {
-                printf("%s\t\t", tmp -> arg2-> name);
+                printf("%10s\t\t", tmp->arg1->name);
             }
-        } else {printf("\t\t");}
-        if(tmp -> result -> is_constant){
-            printf("%d\t\t", tmp->result->value);
-        } else {
-            printf("%s\t\t", tmp -> result-> name);
         }
-
+        if(!tmp->arg2){
+            printf("%10s\t\t", "NULL");
+        } else {
+            if(tmp->arg2->is_constant){
+                printf("%10d\t\t", tmp->arg2->value);
+            } else {
+                printf("%10s\t", tmp->arg2->name);
+            }
+        }
+        if(!tmp->result){
+            printf("%10s\t\t", "NULL");
+        } else {
+            if(tmp->result->is_constant){
+                printf("%10d\t\t", tmp->result->value);
+            } else {
+            printf("%10s\t", tmp->result->name);
+            }
+        }
         printf("\n");
         tmp = tmp->next;
     }
 }
+
 

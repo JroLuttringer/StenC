@@ -7,7 +7,8 @@ void gen_data(FILE* mips_file, symbol* tds){
   while(tmp){
       fprintf(mips_file, "%s:\t.word %d\n", tmp->name, tmp->value);
       tmp = tmp->next;
-  }
+    }
+    fprintf(mips_file, "%s:\t.asciiz %s\n", "ERRDIVZERO", "Error : division by zero\n");
 }
 
 
@@ -22,6 +23,12 @@ void gen_code(FILE* mips_file, quad* code){
             fprintf(mips_file, "\tli $v0, 1\n");
             fprintf(mips_file, "\tsyscall\n");
             break;
+          case Q_PRINTF:
+            fprintf(mips_file, "\tlw %s, %s\n","$a0", tmp->result->name);
+            fprintf(mips_file, "\tli $v0, 4\n");
+            fprintf(mips_file, "\tsyscall\n");
+            break;
+
             default: 
             break;
       }
@@ -52,7 +59,9 @@ void gen_code(FILE* mips_file, quad* code){
         default:
         break;
       }
-      fprintf(mips_file, "\tsw %s, %s\n",  "$t2", tmp->result->name);
+      //TODO : if null , statement inutile ????
+      if(tmp->result != NULL)
+        fprintf(mips_file, "\tsw %s, %s\n",  "$t2", tmp->result->name);
     }
     tmp = tmp->next;
   }

@@ -1,7 +1,7 @@
 #include "list.h"
+static int nb ;
 
 symbol* new_temp(symbol** head){
-    static int nb ;
     symbol* s = (symbol*)malloc(sizeof(symbol));
     s->is_constant=false;
     s->value = 0; 
@@ -43,6 +43,27 @@ symbol* new_integer(symbol** head, int value){
     }
     return s;
 }
+
+
+
+symbol* new_label(symbol** head){
+    symbol* s = (symbol*)malloc(sizeof(symbol));
+    s->is_constant=false;
+    s->value = 0;
+    s->name = (char*)malloc(NAME_LENGTH);
+    snprintf(s->name, NAME_LENGTH, "__label_%d", nb++);
+    s->next = NULL;
+    symbol* tmp = *head;
+    if(tmp == NULL) *head = s;
+    else {
+        while(tmp->next != NULL){
+            tmp = tmp->next;
+        }
+        tmp->next = s;
+    }
+    return s;
+}
+
 
 
 

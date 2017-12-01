@@ -15,10 +15,10 @@ struct symbol {
     struct symbol* next;
 };
 typedef struct symbol symbol;
-
+symbol* new_label(symbol** );
 symbol* new_temp(symbol**);
 symbol* new_integer(symbol** , int );
 symbol* lookup(symbol*, char*);
 void print_symbol(symbol*);
-symbol* add(symbol** head, char* name);
+symbol* add(symbol**, char* );
 #endif

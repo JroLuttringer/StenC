@@ -41,21 +41,18 @@ quad_list* concat_quad_list(quad_list* l1, quad_list* l2){
 }
 
 
-quad_list* complete_quad_list(quad_list* lq, symbol* nextquad){
-    if(lq == NULL) return lq;
-    quad_list* tmp = lq;
+void complete_quad_list(quad_list* ql, symbol* nextquad){
+    if(ql == NULL) return ;
+    quad_list* tmp = ql;
     while(tmp != NULL){
+        printf("Completing %s \n", nextquad->name);
+        if(tmp->q->result != NULL){printf("Warning : complete_quad_list is erasing %s \n", tmp->q->result->name);}
         tmp -> q -> result = nextquad;
         tmp = tmp -> next;
     }
-    return lq;
 }
 
 void print_quad_list(quad_list* ql){
-    if(ql == NULL){
-        return;
-    }
-
 
 }
 

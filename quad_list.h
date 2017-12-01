@@ -12,7 +12,7 @@ typedef struct quad_list{
 quad_list* new_list(quad*);
 quad_list* add_quad_list (quad_list*, quad*);
 quad_list* concat_quad_list(quad_list* , quad_list*);
-quad_list* complete_quad_list(quad_list* , symbol*);
+void complete_quad_list(quad_list* , symbol*);
 void print_quad_list(quad_list*);
 
 #endif 

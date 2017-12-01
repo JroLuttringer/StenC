@@ -1,9 +1,6 @@
 int main(){
-  int x;
-  x = 10+5;
-  x++;
-  x = -x;
-  printi(x);
-  
-  return 1000;
+  int x = 5 ;
+  int y = 7;
+   x<100 || x>200 && x==y;
+  return 1;
 }

@@ -4,6 +4,7 @@
   #include <string.h>
   #include "list.h"
   #include "quad.h"
+  #include "quad_list.h"
   #include "y.tab.h"
   #include "y.tab.h"
 
