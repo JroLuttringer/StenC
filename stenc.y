@@ -103,6 +103,9 @@ statement:
       $$.code = concat_quad($$.code, $1.code);
     }
   | declaration ';'
+    {
+      //$$.code = $$.code;
+    }
   | expression ';'  
     {
       $$.code = NULL;
@@ -259,6 +262,7 @@ declaration:
         fprintf(stderr, "redefinition of %s\n", $2);
         return 0;
       }
+      $$.code = NULL;
     }
   | INT_TYPE ID ASSIGN expression 
     {

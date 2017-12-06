@@ -1,6 +1,7 @@
 int main(){
   int i = 1;
-  printi(1);
-  printf("test");
+  int x =2;
+  int y;
+  printi(x);
   return 0;
 }
