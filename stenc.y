@@ -172,8 +172,6 @@ statement:
       symbol* while_goto = new_label(&tds);
     	symbol* true_goto  = new_label(&tds); // pour sauter le false goto
       symbol* false_goto = new_label(&tds);
-      complete_quad_list($3.truelist, true_goto);
-      complete_quad_list($3.falselist, false_goto);
       quad* true_label = quad_gen(Q_LABEL, NULL, NULL, true_goto);
       quad* false_label = quad_gen(Q_LABEL, NULL, NULL, false_goto);
       quad* while_label=quad_gen(Q_LABEL, NULL, NULL, while_goto);
