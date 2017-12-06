@@ -26,6 +26,9 @@
 %right NEG NOT
 %left INCR DECR 
 
+%nonassoc IFX
+%nonassoc ELSE
+
 %union{
   char* string;
   int value;
@@ -47,11 +50,11 @@
 }
 
 %type <symbol> variable tag
-%type <string> ID STRING COMMENT
+%type <string> ID STRING
 %type <value> INTEGER
 %type <expr> expression 
 %type <cond> boolean_expression
-%type <statement> statement statement_list program s assignement declaration 
+%type <statement> statement statement_list program s assignement declaration COMMENT 
 %%
 s: program 
 {
@@ -77,10 +80,15 @@ program: INT_TYPE MAIN '(' ')' '{' statement_list RETURN expression ';' '}'
 };
 
 statement_list: 
-  statement_list statement  
+  statement_list  statement  
     { 
+      printf("concat du statement \n");
+      $$.next = $2.next;
+      //complete_quad_list($1.next, $2);
       $$.code = NULL;
+      //quad *q = quad_gen(Q_LABEL, NULL, NULL, $2);
       $$.code = concat_quad($$.code, $1.code);
+      //$$.code = concat_quad($$.code, q);
       $$.code = concat_quad($$.code, $2.code);
     }
   | %empty
@@ -117,16 +125,89 @@ statement:
     }   
   | boolean_expression ';' 
     {
+        printf("buginator boolean_expr ;\n");
       $$.code = $1.code;
     }
-  | IF '('boolean_expression')' tag '{'statement_list'}'
+  | IF '('boolean_expression')' '{'statement_list'}' %prec IFX
     {
-      complete_quad_list($3.truelist, $5);
-      $$.next = concat_quad_list($3.falselist, $7.next);
+      symbol* true_goto= new_label(&tds);
+      symbol* false_goto= new_label(&tds);
+      quad* true_label = quad_gen(Q_LABEL, NULL, NULL, true_goto);
+      quad* false_label = quad_gen(Q_LABEL, NULL, NULL,false_goto);
+      complete_quad_list($3.truelist, true_goto);
+      complete_quad_list($3.falselist, false_goto);
+      $$.code = concat_quad( $3.code, true_label);
+      $$.code = concat_quad( $$.code, $6.code);
+      $$.code = concat_quad( $$.code, false_label);
     }
-  | IF '('boolean_expression')' '{'statement_list'}' ELSE '{'statement_list'}'
-  | WHILE '(' boolean_expression ')' '{'statement_list'}'
-  | FOR '('assignement';' boolean_expression ';' expression ')' '{'statement_list'}'
+  | IF '('boolean_expression')' '{'statement_list'}' ELSE '{'statement_list'}' 
+    {
+      symbol* true_goto= new_label(&tds);
+      symbol* false_goto= new_label(&tds);
+      symbol* next_goto = new_label(&tds);
+      complete_quad_list($3.truelist, true_goto);
+      complete_quad_list($3.falselist, false_goto);
+      quad* true_label = quad_gen(Q_LABEL, NULL, NULL, true_goto);
+      quad* false_label = quad_gen(Q_LABEL, NULL, NULL, false_goto);
+      quad* next_label=quad_gen(Q_LABEL, NULL, NULL, next_goto);
+      quad* goto_next = quad_gen(Q_GOTO, NULL, NULL, next_goto );
+
+      $$.code = concat_quad( $3.code, true_label); // goto true
+      $$.code = concat_quad( $$.code, $6.code); // true code
+      $$.code = concat_quad( $$.code, goto_next); // skip else
+      $$.code = concat_quad( $$.code, false_label); // goto else
+      $$.code = concat_quad( $$.code, $10.code); // else code
+      $$.code = concat_quad( $$.code, next_label); // skip label
+    }
+   
+  | WHILE '(' boolean_expression ')' '{'statement_list'}' {
+      symbol* while_goto = new_label(&tds);
+    	symbol* true_goto  = new_label(&tds); // pour sauter le false goto
+      symbol* false_goto = new_label(&tds);
+      complete_quad_list($3.truelist, true_goto);
+      complete_quad_list($3.falselist, false_goto);
+      quad* true_label = quad_gen(Q_LABEL, NULL, NULL, true_goto);
+      quad* false_label = quad_gen(Q_LABEL, NULL, NULL, false_goto);
+      quad* while_label=quad_gen(Q_LABEL, NULL, NULL, while_goto);
+      quad* goto_while = quad_gen(Q_GOTO, NULL, NULL, while_goto);
+      complete_quad_list($3.truelist, true_goto);
+      complete_quad_list($3.falselist, false_goto);
+      $$.code = NULL;
+      $$.code = concat_quad(while_label, $3.code);
+      //label while
+      //boolean expression qui va a true_label ou false_label
+      $$.code = concat_quad($$.code, true_label);
+      //label statement list
+      $$.code = concat_quad($$.code, $6.code);
+      //goto while_goto
+      $$.code = concat_quad($$.code, goto_while);
+      //label next
+			$$.code = concat_quad($$.code, false_label);   
+  }
+
+  | FOR '('assignement';' boolean_expression ';' expression ')' '{'statement_list'}' {
+      symbol* instr_for = new_label(&tds);
+      symbol* skip_for = new_label(&tds);
+      symbol* begin_for = new_label(&tds);
+      complete_quad_list($5.truelist, instr_for); // bool true -> instruction du for
+      complete_quad_list($5.falselist, skip_for); // bool false -> sortie du for
+      quad* goto_begin_for = quad_gen(Q_GOTO, NULL,NULL, begin_for);
+      quad* label_begin_for = quad_gen(Q_LABEL, NULL,NULL, begin_for);
+      quad* label_skip_for = quad_gen(Q_LABEL, NULL,NULL, skip_for);
+      quad* label_instr = quad_gen(Q_LABEL, NULL,NULL, instr_for);
+      
+      
+      $$.code = NULL;
+      $$.code = concat_quad($$.code, $3.code); // assignement for
+      $$.code = concat_quad($$.code, label_begin_for); // repere avant éval du booléen
+    	$$.code = concat_quad($$.code, $5.code); // éval du booleen
+      $$.code = concat_quad($$.code, label_instr);
+      $$.code = concat_quad($$.code, $10.code); // instructions
+      $$.code = concat_quad($$.code, $7.code); // expression
+      $$.code = concat_quad($$.code, goto_begin_for); // ré évaluer booleen
+      $$.code = concat_quad($$.code, label_skip_for);  // sortir du for
+      
+  }
   | RETURN expression ';'
   ;
 
@@ -246,6 +327,7 @@ boolean_expression: boolean_expression LOG_OR tag boolean_expression
     }
   | expression GT expression 
     {
+        printf("dans le gt de expr\n");
       quad* q_true = quad_gen(Q_GT, $1.result, $3.result, NULL);
       quad* q_false= quad_gen(Q_GOTO, NULL, NULL, NULL);
 
@@ -256,6 +338,7 @@ boolean_expression: boolean_expression LOG_OR tag boolean_expression
       $$.code = concat_quad($$.code, q_false);
       $$.truelist = new_list(q_true);
       $$.falselist = new_list(q_false);
+     printf("check err seg\n");
     }
   | expression LE expression 
     {
@@ -312,6 +395,7 @@ boolean_expression: boolean_expression LOG_OR tag boolean_expression
   ;
 
 tag: %empty {
+   printf("Je créé le tag\n");
   $$ = new_label(&tds);
 }
 

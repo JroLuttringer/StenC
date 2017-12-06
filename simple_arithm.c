@@ -1,6 +1,10 @@
 int main(){
-  int x = 5 ;
-  int y = 7;
-   x<100 || x>200 && x==y;
-  return 1;
+  int x = 6;
+  int y = 6;
+  for(x=0; x<5; x++){
+    for(y=0; y<5; y++){
+      printi(x+y);
+    }
+  }
+  return x;
 }
