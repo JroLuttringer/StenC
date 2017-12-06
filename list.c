@@ -68,9 +68,9 @@ symbol* new_string(symbol** head, char* val){
     printf("creating new string %s\n", val);
     symbol* s = (symbol*)malloc(sizeof(symbol));
     s->is_constant=false;
-    int l = sizeof(val);
-    s->string = (char*)malloc(sizeof(val));
-    strncpy(s->string, val, l-1);
+    int l = strlen(val);
+    s->string = (char*)malloc(l);
+    strncpy(s->string, val, l);
     s->name = (char*)malloc(NAME_LENGTH);
     snprintf(s->name, NAME_LENGTH, "__string_%d", nb++);
     s->next = NULL;
@@ -82,7 +82,7 @@ symbol* new_string(symbol** head, char* val){
         }
         tmp->next = s;
     }
-    printf("created new string\n");
+    printf("created new string %s\n", s->string);
     return s;
 }
 
@@ -120,6 +120,9 @@ symbol* add(symbol** head, char* name){
 void print_symbol(symbol* head){
   symbol* tmp = head;
   while(tmp != NULL ){
+    if (strstr(tmp->name, "__string")) 
+    printf("%s\t\t%s\t\t(isconstant : %d)\n", tmp->name, tmp->string, tmp->is_constant);
+        else
     printf("%s\t\t%d\t\t(isconstant : %d)\n", tmp->name, tmp->value, tmp->is_constant);
     tmp = tmp->next;
   }

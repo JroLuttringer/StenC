@@ -3,5 +3,9 @@ int main(){
   int x =2;
   int y;
   printi(x);
+  while ( x < 10) {
+  	printf("fuck jro\n");
+  	x++;
+  }
   return 0;
 }
