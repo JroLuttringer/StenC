@@ -104,7 +104,7 @@ statement:
     }
   | declaration ';'
     {
-      $$.code = NULL;
+      //$$.code = NULL;
     }
   | expression ';'  
     {
