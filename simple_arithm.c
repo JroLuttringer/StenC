@@ -7,5 +7,8 @@ int main(){
   	printf("fuck jro\n");
   	x++;
   }
+  int t= 1;
+  //this is comment
+  t++;
   return 0;
 }

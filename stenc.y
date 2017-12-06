@@ -104,7 +104,7 @@ statement:
     }
   | declaration ';'
     {
-      //$$.code = $$.code;
+      $$.code = NULL;
     }
   | expression ';'  
     {
@@ -112,6 +112,9 @@ statement:
       $$.code = concat_quad($$.code, $1.code);
     } 
   | COMMENT
+    {
+      $$.code = NULL;
+    }
   | PRINTI '(' expression ')' ';'
     {
       $$.code = NULL;

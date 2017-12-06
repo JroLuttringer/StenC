@@ -8,7 +8,7 @@ void gen_data(FILE* mips_file, symbol* tds){
 
       if(strstr(tmp->name, "__label")){
         tmp = tmp->next;
-        break;
+        continue;
       }
       // if(strstr(tmp->name, "__temp")){
       //   fprintf(mips_file, "%s:\t.word %d\n", tmp->name, tmp->value);
@@ -22,12 +22,12 @@ void gen_data(FILE* mips_file, symbol* tds){
       if(strstr(tmp->name, "__string")){
         fprintf(mips_file, "%s:\t.asciiz %s\n", tmp->name, tmp->string);
         tmp = tmp->next;
-        break;
+        continue;
       }
       fprintf(mips_file, "%s:\t.word %d\n", tmp->name, tmp->value);
       tmp = tmp->next;
     }
-    fprintf(mips_file, "%s:\t.asciiz %s\n", "ERRDIVZERO", "\"Error : division by zero\n\"");
+    fprintf(mips_file, "%s:\t.asciiz %s\n", "ERRDIVZERO", "\"Error : division by zero\"\n");
 }
 
 
