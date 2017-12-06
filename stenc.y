@@ -118,10 +118,12 @@ statement:
     }
   | PRINTF '(' STRING ')' ';' 
     {
-     /* $$.code = NULL;
-      symbol* s = new_temp(&tds,$3)
+      $$.code = NULL;
+      printf("test\n");
+      printf("saw printf %s\n", $3);
+      symbol* s = new_string(&tds, $3);
       quad* q = quad_gen(Q_PRINTF,NULL, NULL, s);
-      $$.code = concat_quad($$.code, q);    */
+      $$.code = concat_quad($$.code, q);    
     }   
   | boolean_expression ';' 
     {
@@ -251,6 +253,7 @@ declaration:
     {
       symbol* s;
       if((s=lookup(tds, $2)) == NULL){
+        printf("adding a variable\n");
         add(&tds, $2);
       } else {
         fprintf(stderr, "redefinition of %s\n", $2);

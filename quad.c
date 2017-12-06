@@ -74,6 +74,9 @@ void print_quads(quad* head){
             case Q_PRINTI :
                 printf("PRINTI\t\t");
             break;
+            case Q_PRINTF :
+                printf("PRINTI\t\t");
+            break;
 
             case Q_AND :
                 printf("&&\t\t");            

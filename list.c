@@ -64,6 +64,27 @@ symbol* new_label(symbol** head){
     return s;
 }
 
+symbol* new_string(symbol** head, char* val){
+    printf("creating new string %s\n", val);
+    symbol* s = (symbol*)malloc(sizeof(symbol));
+    s->is_constant=false;
+    int l = sizeof(val);
+    s->string = (char*)malloc(sizeof(val));
+    strncpy(s->string, val, l-1);
+    s->name = (char*)malloc(NAME_LENGTH);
+    snprintf(s->name, NAME_LENGTH, "__string_%d", nb++);
+    s->next = NULL;
+    symbol* tmp = *head;
+    if(tmp == NULL) *head = s;
+    else {
+        while(tmp->next != NULL){
+            tmp = tmp->next;
+        }
+        tmp->next = s;
+    }
+    printf("created new string\n");
+    return s;
+}
 
 
 

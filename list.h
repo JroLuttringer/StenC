@@ -11,11 +11,16 @@
 struct symbol {
     bool is_constant;
     char* name;
-    int value;
+    union {
+    	int value;
+    	char* string;
+    };
+    //int value;
     struct symbol* next;
 };
 typedef struct symbol symbol;
 symbol* new_label(symbol** );
+symbol* new_string(symbol** , char*);
 symbol* new_temp(symbol**);
 symbol* new_integer(symbol** , int );
 symbol* lookup(symbol*, char*);

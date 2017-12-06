@@ -56,7 +56,7 @@ string  \".*\"
 {id} { yylval.string = strdup(yytext);return ID;}
 {int}  { yylval.value = atoi(yytext);return INTEGER;}
 {comment}  { return COMMENT;}
-{string}  { return STRING;}
+{string}  { yylval.string = strdup(yytext); return STRING;}
 
 [ \t\n]  { }
 . {}
