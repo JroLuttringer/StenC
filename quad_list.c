@@ -48,6 +48,7 @@ void complete_quad_list(quad_list* ql, symbol* nextquad){
         printf("Completing %s \n", nextquad->name);
         if(tmp->q->result != NULL){printf("Warning : complete_quad_list is erasing %s \n", tmp->q->result->name);}
         tmp -> q -> result = nextquad;
+        printf("Completed one\n");
         tmp = tmp -> next;
     }
 }

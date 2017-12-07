@@ -389,7 +389,6 @@ boolean_expression: boolean_expression LOG_OR tag boolean_expression
     {
       quad* q_true = quad_gen(Q_EQ, $1.result, $3.result, NULL);
       quad* q_false= quad_gen(Q_GOTO, NULL, NULL, NULL);
-
       $$.code = NULL;
       $$.code = concat_quad($$.code, $1.code);
       $$.code = concat_quad($$.code, $3.code);
@@ -398,7 +397,17 @@ boolean_expression: boolean_expression LOG_OR tag boolean_expression
       $$.truelist = new_list(q_true);
       $$.falselist = new_list(q_false);
     }
-  | expression NE expression
+  | expression NE expression {
+      quad* q_true = quad_gen(Q_NE, $1.result, $3.result, NULL);
+      quad* q_false= quad_gen(Q_GOTO, NULL, NULL, NULL);
+      $$.code = NULL;
+      $$.code = concat_quad($$.code, $1.code);
+      $$.code = concat_quad($$.code, $3.code);
+      $$.code = concat_quad($$.code, q_true);
+      $$.code = concat_quad($$.code, q_false);
+      $$.truelist = new_list(q_true);
+      $$.falselist = new_list(q_false);
+  }
   | NOT boolean_expression 
     {
       $$.truelist = $2.falselist;
@@ -551,7 +560,7 @@ void yyerror (char *s) {
 }
 
 int main(int argc, char** argv) {
-  FILE* fp = fopen("simple_arithm.c", "r");
+  FILE* fp = fopen("power.c", "r");
   yyin = fp;
   yyparse();
   printf ("\n\n");
