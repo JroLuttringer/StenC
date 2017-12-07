@@ -77,6 +77,10 @@ program: INT_TYPE MAIN '(' ')' '{' statement_list RETURN expression ';' '}'
 {
   $$.code = NULL;
   $$.code = concat_quad($$.code, $6.code);
+  quad* ret = quad_gen(Q_RETURN, NULL,NULL, $8.result);
+  $$.code = concat_quad($$.code, $8.code);
+  $$.code = concat_quad($$.code, ret);
+
 };
 
 statement_list: 
@@ -104,7 +108,8 @@ statement:
     }
   | declaration ';'
     {
-      //$$.code = NULL;
+      $$.code = NULL;
+      $$.code = $1.code;
     }
   | expression ';'  
     {
@@ -214,7 +219,13 @@ statement:
       $$.code = concat_quad($$.code, label_skip_for);  // sortir du for
       
   }
-  | RETURN expression ';'
+  | RETURN expression ';' {
+    $$.code = NULL;
+    quad* ret = quad_gen(Q_RETURN, NULL,NULL, $2.result);
+    $$.code = concat_quad($$.code, $2.code);
+    $$.code = concat_quad($$.code, ret);
+
+  }
   ;
 
 assignement: 

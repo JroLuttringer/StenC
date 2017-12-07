@@ -8,7 +8,7 @@
 enum op {
     Q_ADD, Q_SUB, Q_MULT, Q_DIV, Q_ASSIGN, Q_PRINTI,
     Q_OR, Q_AND, Q_LT, Q_GT, Q_LE, Q_GE, Q_EQ, Q_NE, Q_NOT,
-    Q_GOTO, Q_LABEL, Q_PRINTF
+    Q_GOTO, Q_LABEL, Q_PRINTF, Q_RETURN
 };
 
 typedef enum op op;

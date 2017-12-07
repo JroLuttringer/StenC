@@ -53,6 +53,11 @@ void gen_code(FILE* mips_file, quad* code){
           case Q_LABEL:
             fprintf(mips_file, "\t%s:\n", tmp->result->name);
             break;
+          case Q_RETURN:
+            fprintf(mips_file, "\tlw $v0, %s\n", tmp ->result->name);
+            fprintf(mips_file, "\tjr $ra\n");
+            break;
+        
 
             default: 
             printf("jro a oublié comme un gogol\n");
@@ -114,6 +119,4 @@ void gen_code(FILE* mips_file, quad* code){
     }
     tmp = tmp->next;
   }
-  fprintf(mips_file, "li $v0, 10\n");
-  fprintf(mips_file, "syscall");
 }

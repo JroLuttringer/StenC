@@ -113,6 +113,9 @@ void print_quads(quad* head){
             case Q_NOT :
                 printf("!\t\t");            
             break;
+            case Q_RETURN:
+                printf("RETURN\t\t");
+            break;
         }
 
         if(!tmp->arg1){
