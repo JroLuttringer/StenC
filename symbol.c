@@ -173,3 +173,21 @@ void print_symbol(symbol* head){
 }
 
 
+sym_list* new_sym_list(symbol* s){
+    sym_list* n = malloc(sizeof(sym_list));
+    n->next = NULL;
+    n->sym = s;
+    return n;
+}
+
+sym_list* concat_sym_list(sym_list* l1, sym_list* l2){
+
+    while(l1->next)  l1 = l1->next;
+    l1->next = l2;
+    return l1;
+}
+
+symbol* get_nth_sym(int sym_nb, sym_list* l) {
+    for ( int i = 0; i < sym_nb; i++) l = l->next;
+    return l->sym;
+}

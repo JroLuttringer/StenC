@@ -32,6 +32,16 @@ typedef struct symbol {
     struct symbol* next;
 } symbol;
 
+
+typedef struct sym_list {
+    struct sym_list* next;
+    symbol* sym;
+} sym_list;
+
+sym_list* new_sym_list(symbol* );
+sym_list* concat_sym_list(sym_list*, sym_list*);
+symbol* get_nth_sym(int, sym_list*);
+
 symbol* new_label(symbol** );
 symbol* new_string(symbol** , char*);
 symbol* new_temp(symbol**);

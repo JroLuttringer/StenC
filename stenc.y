@@ -44,6 +44,10 @@
     int nb_dim;
   } array_access;
   struct {
+    quad* code;
+    sym_list* list;
+  } init_list;
+  struct {
     quad_list* truelist;
     quad_list* falselist;
     quad* code;
@@ -60,6 +64,7 @@
 %type <string> ID STRING
 %type <value> INTEGER
 %type <expr> expression variable
+%type <init_list> init_array inside_array
 %type <array_access> array
 %type <cond> boolean_expression
 %type <statement> statement statement_list program s assignement declaration COMMENT 
@@ -360,7 +365,45 @@ declaration:
   {
     printf("recognised int_type array_declaration\n");
   }
- // | INT_TYPE array']' ASSIGN '{'init_array'}'
+  | INT_TYPE ARRAY_DECLARATION ASSIGN '{'init_array'}'
+  {
+    printf("recongnised init array assigned to tab but not assigning yet\n");
+    //affect à toute les positions de l'array les valeures de la sym_list
+    $$.code = $5.code;
+    int i = 0;
+
+    //for address use
+    symbol* four = lookup(tds, "__const_4");
+    if (four == NULL) four = new_integer(&tds, 4);
+
+    symbol* base = new_temp(&tds);
+    quad* q  = quad_gen(Q_LA, $2, NULL, base);
+    $$.code = concat_quad($$.code, q);
+    symbol* indice;
+    symbol* offset;
+    symbol* address;
+    symbol* sym;
+
+    for(i=0; i < $2->array.size; i++) {
+      //create symbol of value i if doesnt exist
+
+      char tmp_name[42];
+      sprintf(tmp_name,"%s%d","__const_",i);
+      indice = lookup(tds, tmp_name);
+      if (indice == NULL) indice = new_integer(&tds, i);
+
+      offset = new_temp(&tds);
+      q = quad_gen(Q_MULT, indice, four, offset);
+      $$.code = concat_quad($$.code, q);
+      address = new_temp(&tds);
+      q = quad_gen(Q_ADD, base, offset, address);
+      $$.code = concat_quad($$.code, q);
+
+      sym = get_nth_sym(i, $5.list);
+      q = quad_gen(Q_SET_AV, sym, NULL, address);
+      $$.code = concat_quad($$.code, q);
+    }
+  }
   ;
 
 ARRAY_DECLARATION:
@@ -402,18 +445,34 @@ ARRAY_DECLARATION:
       $$ = $1;
     }
 
-/* array init :  inside array or multiple arrays 
 
-init_array:  inside_array
+init_array:  
+  inside_array
+  {
+    $$.list = $1.list;
+    $$.code = $1.code;
+  }
   | init_array ',' inside_array
+  {
+    $$.list = concat_sym_list($1.list, $3.list);
+    $$.code = concat_quad($1.code, $3.code);
+  }
   ;
 
-/* inside an array : arithmetic expression or another array 
-
-inside_array:  expression 
+inside_array:  
+  expression 
+  {
+    $$.list = new_sym_list($1.result);
+    //create int_list with expr
+    $$.code = $1.code;
+  }
   | '{'init_array'}'
+  {
+    $$.list = $2.list;
+    $$.code = $2.code;
+  }
   ;
-*/
+
 
 
 boolean_expression: boolean_expression LOG_OR tag boolean_expression 

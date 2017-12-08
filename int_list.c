@@ -27,7 +27,13 @@ int_list* add_int_to_list(int_list* l, int n){
     while(tmp->next)  tmp = tmp ->next;
     tmp->next = new;
     return l;
+}
 
+int_list* concat_int_list(int_list* l1, int_list* l2){
+
+    while(l1->next)  l1 = l1->next;
+    l1->next = l2;
+    return l1;
 }
 
 int get_nth_dim(int dim, int_list* l) {
