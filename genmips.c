@@ -42,31 +42,30 @@ void gen_code(FILE* mips_file, quad* code){
   while(tmp){
     if(tmp->arg1 == NULL && tmp->arg2 == NULL){
       switch(tmp->i){ // TODO : FACTORISER
-          case Q_PRINTI:
-            fprintf(mips_file, "\tlw %s, %s\n", "$a0",tmp->result->name);
-            fprintf(mips_file, "\tli $v0, 1\n");
-            fprintf(mips_file, "\tsyscall\n");
-            break;
-          case Q_PRINTF:
-            fprintf(mips_file, "\tla %s, %s\n","$a0", tmp->result->name);
-            fprintf(mips_file, "\tli $v0, 4\n");
-            fprintf(mips_file, "\tsyscall\n");
-            break;
-          case Q_GOTO:
-            fprintf(mips_file, "\tj %s\n", tmp->result->name);
-            break;
-          case Q_LABEL:
-            fprintf(mips_file, "\t%s:\n", tmp->result->name);
-            break;
-          case Q_RETURN:
-            fprintf(mips_file, "\tlw $v0, %s\n", tmp ->result->name);
-            fprintf(mips_file, "\tjr $ra\n");
-            break;
-        
+        case Q_PRINTI:
+          fprintf(mips_file, "\tlw %s, %s\n", "$a0",tmp->result->name);
+          fprintf(mips_file, "\tli $v0, 1\n");
+          fprintf(mips_file, "\tsyscall\n");
+          break;
+        case Q_PRINTF:
+          fprintf(mips_file, "\tla %s, %s\n","$a0", tmp->result->name);
+          fprintf(mips_file, "\tli $v0, 4\n");
+          fprintf(mips_file, "\tsyscall\n");
+          break;
+        case Q_GOTO:
+          fprintf(mips_file, "\tj %s\n", tmp->result->name);
+          break;
+        case Q_LABEL:
+          fprintf(mips_file, "\t%s:\n", tmp->result->name);
+          break;
+        case Q_RETURN:
+          fprintf(mips_file, "\tlw $v0, %s\n", tmp ->result->name);
+          fprintf(mips_file, "\tjr $ra\n");
+          break;   
 
-            default: 
-            printf("jro a oublié comme un gogol\n");
-            break;
+        default: 
+          printf("jro a oublié comme un gogol\n");
+          break;
       }
     } else if(tmp->arg1 != NULL && tmp->arg2 == NULL) {
       switch(tmp -> i){
