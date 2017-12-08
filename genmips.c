@@ -5,31 +5,33 @@ void gen_data(FILE* mips_file, symbol* tds){
   fprintf(mips_file,".data\n");
   symbol* tmp = tds;
   while(tmp){
+      switch(tmp->type){
+        case LABEL:
+          break;
+        case STRING_TYPE:
+          fprintf(mips_file, "%s:\t.asciiz %s\n", tmp->name, tmp->string);
+          break;
+        case ARRAY:
+          int size = tmp->array.dim_list->value;
 
-      if(strstr(tmp->name, "__label")){
-        tmp = tmp->next;
-        continue;
+          fprintf(mips_file, "%s:\t.word", tmp->name);
+          for (int i = 0; i < size; i++) fprintf(mips_file, " 0");
+          fprintf(mips_file, "\n");
+          break;
+        case CONSTANT:
+        case VARIABLE:
+          fprintf(mips_file, "%s:\t.word %d\n", tmp->name, tmp->value);
+          break;
+        default:
       }
-      // if(strstr(tmp->name, "__temp")){
-      //   fprintf(mips_file, "%s:\t.word %d\n", tmp->name, tmp->value);
-      // }
-      // if(strstr(tmp->name, "__const")){
-      //   fprintf(mips_file, "%s:\t.word %d\n", tmp->name, tmp->value);
-      // }
-      // if(strstr(tmp->name, "__negconst")){
-      //   fprintf(mips_file, "%s:\t.word %d\n", tmp->name, tmp->value);
-      // }
-      if(strstr(tmp->name, "__string")){
-        fprintf(mips_file, "%s:\t.asciiz %s\n", tmp->name, tmp->string);
-        tmp = tmp->next;
-        continue;
-      }
-      fprintf(mips_file, "%s:\t.word %d\n", tmp->name, tmp->value);
       tmp = tmp->next;
     }
-    fprintf(mips_file, "%s:\t.asciiz %s\n", "ERRDIVZERO", "\"Error : division by zero\"\n");
+    gen_interrupt(mips_file);
 }
 
+void gen_interrupt(FILE* mips_file){
+  fprintf(mips_file, "%s:\t.asciiz %s\n", "ERRDIVZERO", "\"Error : division by zero\"\n");
+}
 
 void gen_code(FILE* mips_file, quad* code){
   quad* tmp = code;

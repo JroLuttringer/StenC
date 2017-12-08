@@ -7,8 +7,10 @@
 #include "symbol.h"
 #include "quad.h"
 
-void gen_code(FILE*, quad* );
+
 void gen_data(FILE*, symbol* );
+void gen_interrupt(FILE*);
+void gen_code(FILE*, quad* );
 
 
 #endif

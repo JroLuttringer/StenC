@@ -14,7 +14,7 @@ typedef struct array {
     int_list* dim_list;
 } array_struct;
 
-struct symbol {
+typedef struct symbol {
     bool is_constant;
     char* name;
     union {
@@ -23,8 +23,8 @@ struct symbol {
         array_struct array;
     };
     struct symbol* next;
-};
-typedef struct symbol symbol;
+} symbol;
+
 symbol* new_label(symbol** );
 symbol* new_string(symbol** , char*);
 symbol* new_temp(symbol**);
