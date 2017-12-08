@@ -580,7 +580,7 @@ void yyerror (char *s) {
 }
 
 int main(int argc, char** argv) {
-  FILE* fp = fopen("if_short_circuit.c", "r");
+  FILE* fp = fopen("test.c", "r");
   yyin = fp;
   yyparse();
   printf ("\n\n");

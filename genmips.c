@@ -4,6 +4,7 @@
 void gen_data(FILE* mips_file, symbol* tds){
   fprintf(mips_file,".data\n");
   symbol* tmp = tds;
+  int size = 0;
   while(tmp){
       switch(tmp->type){
         case LABEL:
@@ -12,7 +13,7 @@ void gen_data(FILE* mips_file, symbol* tds){
           fprintf(mips_file, "%s:\t.asciiz %s\n", tmp->name, tmp->string);
           break;
         case ARRAY:
-          int size = tmp->array.dim_list->value;
+          size = tmp->array.dim_list->value;
 
           fprintf(mips_file, "%s:\t.word", tmp->name);
           for (int i = 0; i < size; i++) fprintf(mips_file, " 0");
@@ -23,6 +24,8 @@ void gen_data(FILE* mips_file, symbol* tds){
           fprintf(mips_file, "%s:\t.word %d\n", tmp->name, tmp->value);
           break;
         default:
+          printf("Error gen_data\n");
+          break;
       }
       tmp = tmp->next;
     }
