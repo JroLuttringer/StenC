@@ -30,8 +30,8 @@ symbol* new_array(symbol** head, char* id, int taille_dim){
     snprintf(s->name, NAME_LENGTH, id, nb++); 
     s->next = NULL;
     s->array.nb_dim = 1;
-    s->array.dim_list = new_int_list();
-    s->array.dim_list = add_int_to_list(s->array.dim_list,taille_dim);
+    printf("taille dim : %d\n", taille_dim);
+    s->array.dim_list = new_int_list(taille_dim);
 
     symbol* tmp = *head;
     if(tmp == NULL) *head = s;
@@ -47,6 +47,7 @@ symbol* new_array(symbol** head, char* id, int taille_dim){
 
 symbol* update_array(symbol* array_to_update, int new_dim_size){
     int_list* tmp = array_to_update->array.dim_list;
+    printf("taille dim : %d\n", new_dim_size);
     while(tmp != NULL){
         tmp->value *= new_dim_size;
         tmp = tmp->next;

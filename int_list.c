@@ -1,9 +1,9 @@
 #include "int_list.h"
 
-int_list* new_int_list(){
+int_list* new_int_list(int k){
     int_list* n = malloc(sizeof(int_list));
     n->next = NULL;
-    n->value = 0;
+    n->value = k;
     return n;
 }
 int_list* add_int_lists(int_list* l1, int_list* l2)	{
