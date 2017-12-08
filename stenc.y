@@ -299,6 +299,16 @@ declaration:
 ARRAY_DECLARATION:
   ID '[' INTEGER ']' 
     {
+      char tmp_name[256];
+      if($1 >= 0)
+        sprintf(tmp_name,"%s%d","__const_",$1);
+      else{
+        sprintf(tmp_name,"%s%d","__negconst_",$1*-1);
+        printf("lookup : %s \n", tmp_name);
+      }
+      symbol* s = lookup(tds, tmp_name);
+      if(s == NULL) s=new_integer(&tds, $1); 
+      printf("Creating new array\n");
       symbol* s = lookup(tds, $1);
       if (s != NULL) 
       {
@@ -311,6 +321,15 @@ ARRAY_DECLARATION:
     }
   | ARRAY_DECLARATION '[' INTEGER ']' 
     {
+      char tmp_name[256];
+      if($1 >= 0)
+        sprintf(tmp_name,"%s%d","__const_",$1);
+      else{
+        sprintf(tmp_name,"%s%d","__negconst_",$1*-1);
+        printf("lookup : %s \n", tmp_name);
+      }
+      symbol* s = lookup(tds, tmp_name);
+      if(s == NULL) s=new_integer(&tds, $1); 
       update_array($1, $3);
       $$ = $1;
     }
