@@ -9,12 +9,18 @@
 
 #define NAME_LENGTH 43
 
+enum type_enum{
+    LABEL, CONSTANT, STRING_TYPE, ARRAY, VARIABLE 
+};
+typedef enum type_enum type_enum;
+
 typedef struct array {
     int nb_dim;
     int_list* dim_list;
 } array_struct;
 
 typedef struct symbol {
+    type_enum type;  
     bool is_constant;
     char* name;
     union {

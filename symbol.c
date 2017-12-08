@@ -3,6 +3,7 @@ static int nb ;
 
 symbol* new_temp(symbol** head){
     symbol* s = (symbol*)malloc(sizeof(symbol));
+    s->type=CONSTANT;
     s->is_constant=false;
     s->value = 0; 
     s->name = (char*)malloc(NAME_LENGTH);
@@ -24,6 +25,7 @@ symbol* new_temp(symbol** head){
 symbol* new_array(symbol** head, char* id, int taille_dim){
     symbol* s = (symbol*)malloc(sizeof(symbol));
     s->is_constant=false;
+    s->type = ARRAY;
     s->name = (char*)malloc(NAME_LENGTH);
     snprintf(s->name, NAME_LENGTH, "__temp_%d", nb++); 
     s->next = NULL;
@@ -57,6 +59,7 @@ symbol* update_array(symbol* array_to_update, int new_dim_size){
 
 symbol* new_integer(symbol** head, int value){
     symbol* s = (symbol*)malloc(sizeof(symbol));
+    s->type = VARIABLE;
     s->is_constant=true;
     s->value = value;
     s->name = (char*)malloc(NAME_LENGTH);
@@ -83,6 +86,7 @@ symbol* new_label(symbol** head){
     symbol* s = (symbol*)malloc(sizeof(symbol));
     s->is_constant=false;
     s->value = 0;
+    s->type = LABEL;
     s->name = (char*)malloc(NAME_LENGTH);
     snprintf(s->name, NAME_LENGTH, "__label_%d", nb++);
     s->next = NULL;
@@ -101,6 +105,7 @@ symbol* new_string(symbol** head, char* val){
     printf("creating new string %s\n", val);
     symbol* s = (symbol*)malloc(sizeof(symbol));
     s->is_constant=false;
+    s->type = STRING_TYPE;
     int l = strlen(val);
     s->string = (char*)malloc(l);
     strncpy(s->string, val, l);
