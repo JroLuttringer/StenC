@@ -14,7 +14,7 @@
 id    [_a-zA-Z][_a-zA-Z0-9]*
 int 0|([1-9][0-9]*)
 comment ("/*"([^*]|(\*+[^*/]))*"*"+"/")|("//"[^\n]*\n)
-string  \".*\"
+string \"(\\.|[^"])*\"
 
 %%
 
@@ -56,7 +56,7 @@ string  \".*\"
 {id} { yylval.string = strdup(yytext);return ID;}
 {int}  { yylval.value = atoi(yytext);return INTEGER;}
 {comment}  { return COMMENT;}
-{string}  { yylval.string = strdup(yytext); return STRING;}
+{string}  { yylval.string = strdup(yytext);return STRING;}
 
 [ \t\n]  { }
 . {}

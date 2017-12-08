@@ -181,13 +181,18 @@ sym_list* new_sym_list(symbol* s){
 }
 
 sym_list* concat_sym_list(sym_list* l1, sym_list* l2){
-
-    while(l1->next)  l1 = l1->next;
-    l1->next = l2;
+    if(!l1) return l2;
+    if(!l2) return l1;
+    sym_list* tmp = l1;
+    while(tmp->next)  tmp = tmp->next;
+    tmp->next = l2;
     return l1;
 }
 
 symbol* get_nth_sym(int sym_nb, sym_list* l) {
+    printf("getting %d sym\n", sym_nb);
     for ( int i = 0; i < sym_nb; i++) l = l->next;
+    printf("got it ! \n");
+    if(!(l)) printf("But it's null :/\n");
     return l->sym;
 }

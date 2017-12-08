@@ -455,6 +455,13 @@ init_array:
   | init_array ',' inside_array
   {
     $$.list = concat_sym_list($1.list, $3.list);
+    sym_list* tmp = $$.list;
+    int size = 0;
+    while (tmp) {
+      tmp = tmp->next;size++;
+    }
+    printf("size : %d\n",size);
+   // if($1.list == NULL || $3.list == NULL) printf("One is null\n");
     $$.code = concat_quad($1.code, $3.code);
   }
   ;
@@ -464,6 +471,7 @@ inside_array:
   {
     $$.list = new_sym_list($1.result);
     //create int_list with expr
+    printf("new sym list\n");
     $$.code = $1.code;
   }
   | '{'init_array'}'
