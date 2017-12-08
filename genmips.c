@@ -14,7 +14,7 @@ void gen_data(FILE* mips_file, symbol* tds){
           break;
         case ARRAY:
           size = tmp->array.dim_list->value;
-
+          printf("Size of array is %d\n", size);
           fprintf(mips_file, "%s:\t.word", tmp->name);
           for (int i = 0; i < size; i++) fprintf(mips_file, " 0");
           fprintf(mips_file, "\n");
