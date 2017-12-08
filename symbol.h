@@ -29,7 +29,7 @@ symbol* new_label(symbol** );
 symbol* new_string(symbol** , char*);
 symbol* new_temp(symbol**);
 symbol* new_array(symbol**,char*,int);
-symbol* update_array(symbol* head, char* id, int new_dim_size);
+symbol* update_array(symbol* array_to_update, int new_dim_size);
 symbol* new_integer(symbol** , int );
 symbol* lookup(symbol*, char*);
 void print_symbol(symbol*);

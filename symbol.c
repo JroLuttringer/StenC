@@ -43,12 +43,7 @@ symbol* new_array(symbol** head, char* id, int taille_dim){
     return s;
 }
 
-symbol* update_array(symbol* head, char* id, int new_dim_size){
-    symbol* array_to_update = lookup(head,id);
-    if(!array_to_update) {
-        printf("Error : array to update doesn't exist\n");
-        return NULL;
-    }
+symbol* update_array(symbol* array_to_update, int new_dim_size){
     int_list* tmp = array_to_update->array.dim_list;
     while(tmp != NULL){
         tmp->value *= new_dim_size;

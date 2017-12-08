@@ -311,7 +311,7 @@ ARRAY_DECLARATION:
     }
   | ARRAY_DECLARATION '[' INTEGER ']' 
     {
-      update_array(tds, $1, $3);
+      update_array($1, $3);
       $$ = $1;
     }
 
