@@ -116,6 +116,17 @@ void print_quads(quad* head){
             case Q_RETURN:
                 printf("RETURN\t\t");
             break;
+            case Q_SA:
+                printf("Q_SA\t\t");
+                break;
+            case Q_LA:
+                printf("Q_LA\t\t");
+                break;
+            case Q_GET_AV:
+                printf("Q_GET_AV\t");
+                break;
+            default:
+                break;
         }
 
         if(!tmp->arg1){

@@ -11,6 +11,7 @@ typedef struct int_list {
 int_list* new_int_list(int );
 int_list* add_int_lists(int_list* l1, int_list* l2);
 int get_int_list_size(int_list*);
+int get_nth_dim(int, int_list*);
 int_list* add_int_to_list(int_list* l, int n);
 
 

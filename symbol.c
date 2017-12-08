@@ -29,6 +29,7 @@ symbol* new_array(symbol** head, char* id, int taille_dim){
     s->name = (char*)malloc(NAME_LENGTH);
     snprintf(s->name, NAME_LENGTH, id, nb++); 
     s->next = NULL;
+    s->array.size = taille_dim;
     s->array.nb_dim = 1;
     printf("taille dim : %d\n", taille_dim);
     s->array.dim_list = new_int_list(taille_dim);
@@ -46,12 +47,13 @@ symbol* new_array(symbol** head, char* id, int taille_dim){
 }
 
 symbol* update_array(symbol* array_to_update, int new_dim_size){
-    int_list* tmp = array_to_update->array.dim_list;
+    // int_list* tmp = array_to_update->array.dim_list;
     printf("taille dim : %d\n", new_dim_size);
-    while(tmp != NULL){
-        tmp->value *= new_dim_size;
-        tmp = tmp->next;
-    }
+    array_to_update->array.size *= new_dim_size;
+    // while(tmp != NULL){
+    //     tmp->value *= new_dim_size;
+    //     tmp = tmp->next;
+    // }
     array_to_update->array.dim_list = add_int_to_list(array_to_update->array.dim_list,new_dim_size);
     array_to_update->array.nb_dim++;
     return array_to_update;
@@ -61,7 +63,7 @@ symbol* update_array(symbol* array_to_update, int new_dim_size){
 
 symbol* new_integer(symbol** head, int value){
     symbol* s = (symbol*)malloc(sizeof(symbol));
-    s->type = VARIABLE;
+    s->type = CONSTANT;
     s->is_constant=true;
     s->value = value;
     s->name = (char*)malloc(NAME_LENGTH);
@@ -141,6 +143,7 @@ symbol* lookup(symbol* head, char* name){
 
 symbol* add(symbol** head, char* name){
     symbol* new_s = malloc(sizeof(symbol));
+    new_s->type = VARIABLE;
     new_s->is_constant = false;
     new_s->name = name;
     new_s->next = NULL; 

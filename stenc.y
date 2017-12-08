@@ -38,6 +38,12 @@
     quad* code;
   } expr;
   struct {
+    symbol* offset;
+    symbol* base;
+    quad* code;
+    int nb_dim;
+  } array_access;
+  struct {
     quad_list* truelist;
     quad_list* falselist;
     quad* code;
@@ -50,10 +56,11 @@
 
 }
 
-%type <symbol> variable tag ARRAY_DECLARATION
+%type <symbol> tag ARRAY_DECLARATION
 %type <string> ID STRING
 %type <value> INTEGER
-%type <expr> expression 
+%type <expr> expression variable
+%type <array_access> array
 %type <cond> boolean_expression
 %type <statement> statement statement_list program s assignement declaration COMMENT 
 %%
@@ -232,18 +239,20 @@ statement:
 assignement: 
   variable ASSIGN expression 
     {
-      symbol* s = lookup(tds, $1->name);
-      if(s == NULL) {
-        fprintf(stderr, "Unknown variable %s in assignement\n", $1->name);
-        return 0;
+      quad* q;
+      if ($1.code == NULL) {
+        q = quad_gen(Q_ASSIGN, $3.result, NULL, $1.result);
       }
-      quad* q = quad_gen(Q_ASSIGN, $3.result, NULL, s);
-     // $$.result = q->result;
-      $$.code = NULL;
-      $$.code = concat_quad($$.code, $3.code);
+      else {
+        q = quad_gen(Q_SET_AV, $3.result, NULL, $1.result);
+      }
+      $$.code = concat_quad($1.code, $3.code);
       $$.code = concat_quad($$.code, q);
     }
   | variable ASSIGN assignement
+    {
+      printf("in variable assign assignment\n");
+    }
   ;
 
 variable: 
@@ -254,14 +263,68 @@ variable:
         fprintf(stderr, "unknown variable %s", $1);
         return 0;
       }
-      $$ = NULL;
-      $$ = s;
+      $$.code = NULL;
+      $$.result = s;
     }
-  | array ']'
+  | array 
+    {
+      symbol* four = lookup(tds, "__const_4");
+      if (four == NULL) four = new_integer(&tds, 4);
+      //Pour multiplier l'offset par la taille d'un int
+
+      symbol* id_addr = new_temp(&tds);
+      quad* q1  = quad_gen(Q_LA, $1.base, NULL, id_addr);
+      symbol* offset = new_temp(&tds);
+      quad* q2  = quad_gen(Q_MULT, $1.offset, four, offset);
+      symbol* address = new_temp(&tds);
+      quad* q3   = quad_gen(Q_ADD, id_addr, offset, address);
+      //on garde l'adresse car on ne sait pas si on va utiliser l'adresse
+      //ou la valeure à l'adresse (gerer plus haut)
+      $$.result = address;
+      $$.code = NULL;
+      $$.code   = concat_quad($$.code, $1.code);
+      $$.code   = concat_quad($$.code, q1);
+      $$.code   = concat_quad($$.code, q2);
+      $$.code   = concat_quad($$.code, q3);
+
+
+    }
   ;
 
-array: ID '[' expression 
-  | array ']' '[' expression
+array: ID '[' expression ']'
+  { 
+      $$.code = NULL;
+      $$.offset = $3.result;
+      $$.base = lookup(tds, $1);
+      $$.nb_dim = 1;
+      if ($$.base == NULL) 
+      {
+        printf("Error id does not exist\n");
+      }
+      $$.code   = concat_quad($$.code, $3.code);
+  }
+  | array '[' expression ']'
+  {
+    $$.base = $1.base;
+    $$.code = concat_quad($1.code, $3.code);
+    $$.nb_dim = $1.nb_dim + 1;
+
+    int nth_dim_size = get_nth_dim($$.nb_dim, $1.base->array.dim_list);
+    printf("nth_dim size is %d\n", nth_dim_size);
+    char* int_name = (char*)malloc(NAME_LENGTH);
+    snprintf(int_name, NAME_LENGTH, "__const_%d", nth_dim_size); 
+
+    symbol* dim_size = lookup(tds, int_name);
+    if (dim_size == NULL) dim_size = new_integer(&tds, nth_dim_size);
+
+    symbol* mult = new_temp(&tds);
+    symbol* add  = new_temp(&tds);
+    quad* q1 = quad_gen(Q_MULT, $1.offset, dim_size, mult);
+    quad* q2 = quad_gen(Q_ADD, mult, $3.result, add);
+    $$.code = concat_quad($$.code, q1);  
+    $$.code = concat_quad($$.code, q2);  
+    $$.offset = add;
+  }
   ;
 
 declaration: 
@@ -281,6 +344,7 @@ declaration:
     {
       symbol* s;
       if((s=lookup(tds, $2)) == NULL){
+        printf("declaring %s\n", $2);
         s=add(&tds, $2);
       } else {
         fprintf(stderr, "redefinition of %s\n", $2);
@@ -293,6 +357,9 @@ declaration:
       $$.code = concat_quad($$.code, q);
     }
   | INT_TYPE ARRAY_DECLARATION
+  {
+    printf("recognised int_type array_declaration\n");
+  }
  // | INT_TYPE array']' ASSIGN '{'init_array'}'
   ;
 
@@ -335,17 +402,19 @@ ARRAY_DECLARATION:
       $$ = $1;
     }
 
-/* array init :  inside array or multiple arrays */
+/* array init :  inside array or multiple arrays 
 
 init_array:  inside_array
   | init_array ',' inside_array
   ;
 
-/* inside an array : arithmetic expression or another array */
+/* inside an array : arithmetic expression or another array 
 
 inside_array:  expression 
   | '{'init_array'}'
   ;
+*/
+
 
 boolean_expression: boolean_expression LOG_OR tag boolean_expression 
   {
@@ -558,7 +627,7 @@ expression:
         return 0;
       }
       symbol* cst_1 = lookup(tds, "__const_1");
-      if(!cst_1){
+      if(!cst_1) {
         cst_1 = new_integer(&tds, 1);
       }
       $$.result = s;
@@ -570,12 +639,19 @@ expression:
 
   | variable 
     {
-      symbol* s;
-      if(!(s=lookup(tds, $1->name))) {
-        fprintf(stderr, "unknown variable %s used in arithmetic expression", $1->name);
-        return 0;
+      //if variable is an array value
+      if ($1.code != NULL) {
+        printf("variable de type array remonte en tant qu'expression\n");
+        $$.result = new_temp(&tds);
+        //get address value
+        quad* q = quad_gen(Q_GET_AV, $1.result, NULL, $$.result);
+        $$.code = concat_quad($1.code, q);
       }
-      $$.result = s;
+      //if variable is an id
+      else {
+        $$.code = $1.code;
+        $$.result = $1.result;
+      }      
     }
 
   | INTEGER 

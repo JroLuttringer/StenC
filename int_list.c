@@ -30,6 +30,11 @@ int_list* add_int_to_list(int_list* l, int n){
 
 }
 
+int get_nth_dim(int dim, int_list* l) {
+    for ( int i = 1; i < dim; i++) l = l->next;
+    return l->value;
+}
+
 int get_int_list_size(int_list* l){
     int size = 0;
     int_list* tmp = l;

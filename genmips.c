@@ -13,7 +13,7 @@ void gen_data(FILE* mips_file, symbol* tds){
           fprintf(mips_file, "%s:\t.asciiz %s\n", tmp->name, tmp->string);
           break;
         case ARRAY:
-          size = tmp->array.dim_list->value;
+          size = tmp->array.size;
           printf("Size of array is %d\n", size);
           fprintf(mips_file, "%s:\t.word", tmp->name);
           for (int i = 0; i < size; i++) fprintf(mips_file, " 0");
@@ -24,7 +24,7 @@ void gen_data(FILE* mips_file, symbol* tds){
           fprintf(mips_file, "%s:\t.word %d\n", tmp->name, tmp->value);
           break;
         default:
-          printf("Error gen_data\n");
+          printf("Error gen_data %s type is %d\n", tmp->name, tmp->type);
           break;
       }
       tmp = tmp->next;
@@ -64,7 +64,7 @@ void gen_code(FILE* mips_file, quad* code){
           break;   
 
         default: 
-          printf("jro a oublié comme un gogol\n");
+          printf("jro a oublié comme un gogol arg1,arg2NULL\n");
           break;
       }
     } else if(tmp->arg1 != NULL && tmp->arg2 == NULL) {
@@ -73,8 +73,23 @@ void gen_code(FILE* mips_file, quad* code){
           fprintf(mips_file, "\tlw $t0, %s\n", tmp->arg1->name);
           fprintf(mips_file, "\tsw $t0, %s\n", tmp->result->name);
         break;
+        case Q_LA:
+          fprintf(mips_file, "\tla $t0, %s\n", tmp->arg1->name);
+          // fprintf(mips_file, "\tlw $t1, ($t0)\n");
+          fprintf(mips_file, "\tsw $t0, %s\n", tmp->result->name);
+          break;
+        case Q_GET_AV:
+          fprintf(mips_file, "\tlw $t0, %s\n", tmp->arg1->name);
+          fprintf(mips_file, "\tlw $t1, ($t0)\n");
+          fprintf(mips_file, "\tsw $t1, %s\n", tmp->result->name);
+          break;
+        case Q_SET_AV:
+          fprintf(mips_file, "\tlw $t0, %s\n", tmp->arg1->name);
+          fprintf(mips_file, "\tlw $t1, %s\n", tmp->result->name);
+          fprintf(mips_file, "\tsw $t0, ($t1)\n");
+        break;
         default :
-            printf("jro a oublié comme un gogol\n");
+            printf("jro a oublié comme un gogol arg2NULL %d\n", tmp->i);
             break;
       }
     } else if (tmp->arg1 != NULL && tmp->arg2 != NULL){
@@ -114,7 +129,7 @@ void gen_code(FILE* mips_file, quad* code){
 
 
         default:
-            printf("jro a oublié comme un gogol\n");
+            printf("jro a oublié comme un gogol no NULL\n");
         break;
       }
       //TODO : if null , statement inutile ????

@@ -16,6 +16,7 @@ typedef enum type_enum type_enum;
 
 typedef struct array {
     int nb_dim;
+    int size;
     int_list* dim_list;
 } array_struct;
 
