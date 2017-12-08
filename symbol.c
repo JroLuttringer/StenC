@@ -27,7 +27,7 @@ symbol* new_array(symbol** head, char* id, int taille_dim){
     s->is_constant=false;
     s->type = ARRAY;
     s->name = (char*)malloc(NAME_LENGTH);
-    snprintf(s->name, NAME_LENGTH, "__temp_%d", nb++); 
+    snprintf(s->name, NAME_LENGTH, id, nb++); 
     s->next = NULL;
     s->array.nb_dim = 1;
     s->array.dim_list = new_int_list();
