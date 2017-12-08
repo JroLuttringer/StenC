@@ -1,4 +1,4 @@
-#include "list.h"
+#include "symbol.h"
 static int nb ;
 
 symbol* new_temp(symbol** head){
@@ -20,6 +20,44 @@ symbol* new_temp(symbol** head){
     }
     return s;
 }
+
+symbol* new_array(symbol** head, char* id, int taille_dim){
+    symbol* s = (symbol*)malloc(sizeof(symbol));
+    s->is_constant=false;
+    s->name = (char*)malloc(NAME_LENGTH);
+    snprintf(s->name, NAME_LENGTH, "__temp_%d", nb++); 
+    s->next = NULL;
+    s->array.nb_dim = 1;
+    s->array.dim_list = new_int_list();
+    s->array.dim_list = add_int_to_list(s->array.dim_list,taille_dim);
+
+    symbol* tmp = *head;
+    if(tmp == NULL) *head = s;
+    else {
+        while(tmp->next != NULL){
+            tmp = tmp->next;
+        }
+        tmp->next = s;
+    }
+
+    return s;
+}
+
+symbol* update_array(symbol* head, char* id, int new_dim_size){
+    symbol* array_to_update = lookup(head,id);
+    if(!array_to_update) {
+        printf("Error : array to update doesn't exist\n");
+        return NULL;
+    }
+    int_list* tmp = array_to_update->array.dim_list;
+    while(tmp != NULL){
+        tmp->value *= new_dim_size;
+    }
+    array_to_update->array.dim_list = add_int_to_list(array_to_update->array.dim_list,new_dim_size);
+    array_to_update->array.nb_dim++;
+    return array_to_update;
+}
+
 
 
 symbol* new_integer(symbol** head, int value){

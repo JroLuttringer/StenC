@@ -2,7 +2,7 @@
   #include <stdlib.h>
   #include <stdio.h>
   #include <string.h>
-  #include "list.h"
+  #include "symbol.h"
   #include "quad.h"
   #include "quad_list.h"
   #include "y.tab.h"

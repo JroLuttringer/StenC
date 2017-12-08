@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
-#include "list.h"
+#include "symbol.h"
 #include "quad.h"
 
 void gen_code(FILE*, quad* );

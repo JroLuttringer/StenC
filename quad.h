@@ -2,7 +2,7 @@
 #define QD_H
 
 #include <stdlib.h>
-#include "list.h"
+#include "symbol.h"
 
 
 enum op {
