@@ -49,6 +49,7 @@ symbol* update_array(symbol* array_to_update, int new_dim_size){
     int_list* tmp = array_to_update->array.dim_list;
     while(tmp != NULL){
         tmp->value *= new_dim_size;
+        tmp = tmp->next;
     }
     array_to_update->array.dim_list = add_int_to_list(array_to_update->array.dim_list,new_dim_size);
     array_to_update->array.nb_dim++;
