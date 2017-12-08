@@ -15,7 +15,7 @@
 %}
 
 %token ID INT_TYPE VOID_TYPE COMMENT INTEGER PRINTI PRINTF STRING MAIN RETURN ASSIGN
-%token IF ELSE WHILE DO FOR INCR DECR LOG_AND LOG_OR LOG_EQ GE LE NE GT LT NOT
+%token IF ELSE WHILE DO FOR INCR DECR LOG_AND LOG_OR LOG_EQ GE LE NE GT LT NOT L
 %left ','  
 %left LOG_OR
 %left LOG_AND
@@ -291,9 +291,17 @@ declaration:
       $$.code = concat_quad($$.code, $4.code);
       $$.code = concat_quad($$.code, q);
     }
-  | INT_TYPE array']'
-  | INT_TYPE array']' ASSIGN '{'init_array'}'
+  | INT_TYPE ARRAY_DECLARATION
+ // | INT_TYPE array']' ASSIGN '{'init_array'}'
   ;
+
+ARRAY_DECLARATION:
+  ID '[' INTEGER ']' {
+
+  }
+  | L '[' INTEGER ']' {
+
+  }
 
 /* array init :  inside array or multiple arrays */
 
@@ -560,7 +568,7 @@ void yyerror (char *s) {
 }
 
 int main(int argc, char** argv) {
-  FILE* fp = fopen("power.c", "r");
+  FILE* fp = fopen("if_short_circuit.c", "r");
   yyin = fp;
   yyparse();
   printf ("\n\n");
