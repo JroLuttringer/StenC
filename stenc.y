@@ -1,5 +1,5 @@
 %{
-  #include "list.h"
+  #include "symbol.h"
   #include "quad_list.h"
   #include "genmips.h"
   #include "quad.h"
@@ -47,9 +47,10 @@
     symbol* sym;
     quad_list* next;
   } statement;
+
 }
 
-%type <symbol> variable tag
+%type <symbol> variable tag ARRAY_DECLARATION
 %type <string> ID STRING
 %type <value> INTEGER
 %type <expr> expression 
@@ -296,12 +297,23 @@ declaration:
   ;
 
 ARRAY_DECLARATION:
-  ID '[' INTEGER ']' {
+  ID '[' INTEGER ']' 
+    {
+      symbol* s = lookup(tds, $1);
+      if (s != NULL) 
+      {
+        printf("ERROR redeclaration of array\n");
+        return 0;
+      }
+      s = new_array(&tds, $1, $3);
+      $$ = s;
 
-  }
-  | L '[' INTEGER ']' {
-
-  }
+    }
+  | ARRAY_DECLARATION '[' INTEGER ']' 
+    {
+      update_array(tds, $1, $3);
+      $$ = $1;
+    }
 
 /* array init :  inside array or multiple arrays */
 
