@@ -6,6 +6,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "int_list.h"
+#include "check.h"
 
 #define NAME_LENGTH 43
 

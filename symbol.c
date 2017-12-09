@@ -17,14 +17,16 @@ void free_symbol(symbol* s){
 
 symbol* new_temp(symbol** head){
     symbol* s = (symbol*)malloc(sizeof(symbol));
+    CHECK(s != NULL);
+
     s->type=CONSTANT;
     s->is_constant=false;
     s->value = 0; 
     s->name = (char*)malloc(NAME_LENGTH);
+    CHECK(s->name != NULL);
+
     snprintf(s->name, NAME_LENGTH, "@@temp_%d", nb++); 
     s->next = NULL;
-
-
     symbol* tmp = *head;
     if(tmp == NULL) *head = s;
     else {
@@ -38,9 +40,13 @@ symbol* new_temp(symbol** head){
 
 symbol* new_array(symbol** head, char* id, int taille_dim){
     symbol* s = (symbol*)malloc(sizeof(symbol));
+    CHECK(s != NULL);
+
     s->is_constant=false;
     s->type = ARRAY;
     s->name = (char*)malloc(NAME_LENGTH);
+    CHECK(s->name != NULL);
+
     snprintf(s->name, NAME_LENGTH, id, nb++); 
     s->next = NULL;
     s->array.size = taille_dim;
@@ -63,9 +69,13 @@ symbol* new_array(symbol** head, char* id, int taille_dim){
 
 symbol* new_stencil(symbol** head, char* id, int taille_dim){
     symbol* s = (symbol*)malloc(sizeof(symbol));
+    CHECK(s);
+
     s->is_constant=false;
     s->type = STENCIL_TYPE;
     s->name = (char*)malloc(NAME_LENGTH);
+    CHECK(s->name);
+
     snprintf(s->name, NAME_LENGTH, id, nb++); 
     s->next = NULL;
     s->array.size = taille_dim;
@@ -101,10 +111,14 @@ symbol* update_array(symbol* array_to_update, int new_dim_size){
 
 symbol* new_integer(symbol** head, int value){
     symbol* s = (symbol*)malloc(sizeof(symbol));
+    CHECK(s);
+
     s->type = CONSTANT;
     s->is_constant=true;
     s->value = value;
     s->name = (char*)malloc(NAME_LENGTH);
+    CHECK(s->name);
+
     if(value >=0)
         snprintf(s->name, NAME_LENGTH, "@@const_%d", value); 
     else
@@ -126,10 +140,12 @@ symbol* new_integer(symbol** head, int value){
 
 symbol* new_label(symbol** head){
     symbol* s = (symbol*)malloc(sizeof(symbol));
+    CHECK(s);
     s->is_constant=false;
     s->value = 0;
     s->type = LABEL;
     s->name = (char*)malloc(NAME_LENGTH);
+    CHECK(s->name);
     snprintf(s->name, NAME_LENGTH, "@@label_%d", nb++);
     s->next = NULL;
     symbol* tmp = *head;
@@ -146,12 +162,15 @@ symbol* new_label(symbol** head){
 symbol* new_string(symbol** head, char* val){
    // printf("creating new string %s\n", val);
     symbol* s = (symbol*)malloc(sizeof(symbol));
+    CHECK(s);
     s->is_constant=false;
     s->type = STRING_TYPE;
     int l = strlen(val);
     s->string = (char*)malloc(l);
+    CHECK(s->string);
     strncpy(s->string, val, l);
     s->name = (char*)malloc(NAME_LENGTH);
+    CHECK(s->name);
     snprintf(s->name, NAME_LENGTH, "@@string_%d", nb++);
     s->next = NULL;
     symbol* tmp = *head;
@@ -181,6 +200,7 @@ symbol* lookup(symbol* head, char* name){
 
 symbol* add(symbol** head, char* name){
     symbol* new_s = malloc(sizeof(symbol));
+    CHECK(new_s);
     new_s->type = VARIABLE;
     new_s->is_constant = false;
     new_s->name = name;
@@ -213,6 +233,7 @@ void print_symbol(symbol* head){
 
 sym_list* new_sym_list(symbol* s){
     sym_list* n = malloc(sizeof(sym_list));
+    CHECK(n);
     n->next = NULL;
     n->sym = s;
     return n;
@@ -222,6 +243,7 @@ sym_list* concat_sym_list(sym_list* l1, sym_list* l2){
     if(!l1) return l2;
     if(!l2) return l1;
     sym_list* tmp = l1;
+    CHECK(tmp);
     while(tmp->next)  tmp = tmp->next;
     tmp->next = l2;
     return l1;
