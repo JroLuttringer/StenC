@@ -45,7 +45,8 @@ void gen_data(FILE* mips_file, symbol* tds){
           fprintf(mips_file, "%s:\t.word %d\n", tmp->name, tmp->value);
           break;
         default:
-          printf("Error gen_data %s type is %d\n", tmp->name, tmp->type);
+          fprintf(stderr,"Error while generating mips : data type unknown\n");
+          return ;
           break;
       }
       tmp = tmp->next;
