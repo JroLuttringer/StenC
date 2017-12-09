@@ -9,6 +9,8 @@ void free_symbol(symbol* s){
         s = s->next;
         if(tmp){
             if(tmp->name)free(tmp->name);
+            if(tmp->type == STRING_TYPE) free(tmp->string);
+            if(tmp->type == ARRAY) free_int_list(tmp->array.dim_list);
             free(tmp);
         }
     }
@@ -165,7 +167,7 @@ symbol* new_string(symbol** head, char* val){
     CHECK(s);
     s->is_constant=false;
     s->type = STRING_TYPE;
-    int l = strlen(val);
+    int l = strlen(val)+1;
     s->string = (char*)malloc(l);
     CHECK(s->string);
     strncpy(s->string, val, l);
@@ -205,6 +207,7 @@ symbol* add(symbol** head, char* name){
     new_s->is_constant = false;
     new_s->name = name;
     new_s->next = NULL; 
+    new_s->value = 0;
     symbol* tmp = *head;
     if(tmp == NULL) *head = new_s;
     else {

@@ -11,6 +11,8 @@
   void print_error(char*, char*);
   int yylex();
   extern FILE* yyin;
+  extern int yylex_destroy(void);  
+
   symbol* tds = NULL;
   quad* whole_code = NULL;
 
@@ -143,6 +145,7 @@ statement:
     {
       $$.code = NULL;
       symbol* s = new_string(&tds, $3);
+      free($3);
       quad* q = quad_gen(Q_PRINTF,NULL, NULL, s);
       $$.code = concat_quad($$.code, q);    
     }   
@@ -274,7 +277,7 @@ variable:
         free($1);
         return 0;
       }
-      //free($1);
+      free($1);
       $$.code = NULL;
       $$.result = s;
     }
@@ -315,7 +318,7 @@ array: ID '[' expression ']'
         free($1);
         return 0;
       }
-    //  free($1);
+      free($1);
       $$.code   = concat_quad($$.code, $3.code);
   }
   | array '[' expression ']'
@@ -487,7 +490,7 @@ ARRAY_DECLARATION:
       }
 
       s = new_array(&tds, $1, $3);
-    //  free($1);
+      free($1);
       $$ = s;
 
     }
@@ -549,6 +552,7 @@ boolean_expression: boolean_expression LOG_OR boolean_expression
       $$.falselist = NULL;
       symbol* label = new_label(&tds);
       complete_quad_list($1.falselist, label);
+      free_quad_list($1.falselist);
       $$.truelist = concat_quad_list($1.truelist,$3.truelist);
       $$.falselist = $3.falselist;
       $$.code = NULL;
@@ -562,6 +566,7 @@ boolean_expression: boolean_expression LOG_OR boolean_expression
       $$.falselist = NULL;
       symbol* label = new_label(&tds);
       complete_quad_list($1.truelist, label);
+      free_quad_list($1.truelist);
       $$.truelist = $3.truelist;
       $$.falselist = concat_quad_list($1.falselist,$3.falselist);    
       $$.code = NULL;
@@ -734,7 +739,7 @@ expression:
       quad* q = quad_gen(Q_ADD, s, cst_1, s);
       $$.code = NULL;
       $$.code = concat_quad($$.code, q);
-     // free($1);
+      free($1);
     }
 
   | ID DECR 
@@ -753,7 +758,7 @@ expression:
       quad* q = quad_gen(Q_SUB, s, cst_1, s);
       $$.code = NULL;
       $$.code = concat_quad($$.code, q);
-      //free($1);
+      free($1);
 
     }
 
@@ -827,6 +832,7 @@ int main(int argc, char** argv) {
   free_symbol(tds);
   free_quad(whole_code);
   
-  
+  yylex_destroy();  
+
   return 0;
 }
