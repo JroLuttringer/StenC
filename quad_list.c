@@ -7,6 +7,17 @@ quad_list* new_list(quad* q){
     lq -> next = NULL;
     return lq;
 }
+ 
+void free_quad_list(quad_list* q){
+    if(!q) return;
+    quad_list* tmp = q;
+    while(q){
+        tmp =q;
+        q = q->next;
+        if(tmp->q)free_quad(tmp->q);
+        free(q);
+    }
+}
 
 quad_list* add_quad_list(quad_list* ql, quad* q){
     quad_list* new_ql = malloc(sizeof(quad_list));
