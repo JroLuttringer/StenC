@@ -11,7 +11,7 @@
 #define NAME_LENGTH 43
 
 enum type_enum{
-    LABEL, CONSTANT, STRING_TYPE, ARRAY, VARIABLE, STENCIL_TYPE
+    LABEL, CONSTANT, STRING_TYPE, ARRAY, VARIABLE, STENCIL
 };
 typedef enum type_enum type_enum;
 
