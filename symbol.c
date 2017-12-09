@@ -2,7 +2,7 @@
 static int nb ;
 
 
-symbol* free_symbol(symbol* s){
+void free_symbol(symbol* s){
     free(s->name);
     free(s);
 }

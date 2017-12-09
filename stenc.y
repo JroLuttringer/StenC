@@ -8,7 +8,6 @@
   #include <string.h>
 
   void yyerror( char*);
-  void debug(char*);
   void print_error(char*, char*);
   int yylex();
   extern FILE* yyin;
@@ -23,7 +22,7 @@
 %locations
 
 %token ID INT_TYPE VOID_TYPE COMMENT INTEGER PRINTI PRINTF STRING MAIN RETURN ASSIGN
-%token IF ELSE WHILE DO FOR INCR DECR LOG_AND LOG_OR LOG_EQ GE LE NE GT LT NOT L
+%token IF ELSE WHILE DO FOR INCR DECR LOG_AND LOG_OR LOG_EQ GE LE NE GT LT NOT L STENCIL
 %left ',' 
 %left LOG_OR
 %left LOG_AND
@@ -79,7 +78,7 @@
 %%
 s: program 
 {
-  debug("Match ! \n\n");
+  if(DEBUG) printf("Match ! \n\n");
   $$.code = NULL;
   $$.code = concat_quad($$.code, $1.code);
   whole_code = $$.code;
@@ -99,7 +98,7 @@ program: INT_TYPE MAIN '(' ')' '{' statement_list RETURN expression ';' '}'
 statement_list: 
   statement_list  statement  
     { 
-      debug("concat du statement \n");
+      if(DEBUG) printf("concat du statement \n");
       $$.next = $2.next;
       //complete_quad_list($1.next, $2);
       $$.code = NULL;
@@ -312,7 +311,7 @@ array: ID '[' expression ']'
     $$.nb_dim = $1.nb_dim + 1;
 
     int nth_dim_size = get_nth_dim($$.nb_dim, $1.base->array.dim_list);
-    //debug("nth_dim size is %d\n", nth_dim_size);
+    if(DEBUG) printf("nth_dim size is %d\n", nth_dim_size);
     char* int_name = (char*)malloc(NAME_LENGTH);
     snprintf(int_name, NAME_LENGTH, "@@const_%d", nth_dim_size); 
 
@@ -334,7 +333,7 @@ declaration:
     {
       symbol* s;
       if((s=lookup(tds, $2)) == NULL){
-       // printf("adding a variable\n");
+       if(DEBUG) printf("adding a variable\n");
         add(&tds, $2);
       } else {
         print_error("Redefinition of ", $2);
@@ -346,7 +345,7 @@ declaration:
     {
       symbol* s;
       if((s=lookup(tds, $2)) == NULL){
-       // printf("declaring %s\n", $2);
+       if(DEBUG) printf("declaring %s\n", $2);
         s=add(&tds, $2);
       } else {
         print_error("Redeclaration of ", $2);
@@ -360,11 +359,11 @@ declaration:
     }
   | INT_TYPE ARRAY_DECLARATION
   {
-  //  printf("recognised int_type array_declaration\n");
+  if(DEBUG) printf("recognised int_type array_declaration\n");
   }
   | INT_TYPE ARRAY_DECLARATION ASSIGN '{'init_array'}'
   {
-  //  printf("recongnised init array assigned to tab but not assigning yet\n");
+  if(DEBUG) printf("recongnised init array assigned to tab but not assigning yet\n");
     //affect à toute les positions de l'array les valeures de la sym_list
     $$.code = $5.code;
     int i = 0;
@@ -411,11 +410,11 @@ ARRAY_DECLARATION:
         sprintf(tmp_name,"%s%d","@@const_",$3);
       else{
         sprintf(tmp_name,"%s%d","@@negconst_",$3*-1);
-      //  printf("lookup : %s \n", tmp_name);
+      if(DEBUG) printf("lookup : %s \n", tmp_name);
       }
       symbol* s = lookup(tds, tmp_name);
       if(s == NULL) s=new_integer(&tds, $3); 
-     // printf("Creating new array\n");
+     if(DEBUG) printf("Creating new array\n");
       
       s = lookup(tds, $1);
       if (s != NULL) 
@@ -434,7 +433,7 @@ ARRAY_DECLARATION:
         sprintf(tmp_name,"%s%d","@@const_",$3);
       else{
         sprintf(tmp_name,"%s%d","@@negconst_",$3*-1);
-       // printf("lookup : %s \n", tmp_name);
+       if(DEBUG) printf("lookup : %s \n", tmp_name);
       }
       symbol* s = lookup(tds, tmp_name);
       if(s == NULL) s=new_integer(&tds, $3); 
@@ -617,7 +616,7 @@ expression:
     }
   | '-' expression %prec NEG
     {
-     // printf("-E\n");
+     if(DEBUG) printf("-E\n");
       symbol* minus_one = lookup(tds, "@@negconst_1");
       if (minus_one == NULL){
         minus_one = new_integer(&tds,-1);
@@ -694,7 +693,7 @@ expression:
       //if variable is an array value
       
       if ($1.code != NULL) {
-       // printf("variable de type array remonte en tant qu'expression\n");
+       if(DEBUG) printf("variable de type array remonte en tant qu'expression\n");
         $$.result = new_temp(&tds);
         //get address value
         quad* q = quad_gen(Q_GET_AV, $1.result, NULL, $$.result);
@@ -714,7 +713,8 @@ expression:
         sprintf(tmp_name,"%s%d","@@const_",$1);
       else{
         sprintf(tmp_name,"%s%d","@@negconst_",$1*-1);
-     //   printf("lookup : %s \n", tmp_name);
+
+     if(DEBUG) printf("lookup : %s \n", tmp_name);
       }
     
       symbol* s = lookup(tds, tmp_name);
@@ -735,23 +735,21 @@ void print_error(char* str1, char* str2){
   yyerror(err_msg);
 }
 
-void debug(char* str){
-  if(!DEBUG) return;
-  fprintf(stdout, " == DEBUG : %s", str);
-}
 
 int main(int argc, char** argv) {
   FILE* fp_in = fopen(argv[1], "r");
   yyin = fp_in;
   yyparse();
-  debug("==== TDS ========================================================\n"); 
-  debug ("\n\n");
-  if(DEBUG) print_symbol(tds);
-  debug("=================================================================\n");
+  if(DEBUG) {
+    printf("==== TDS ========================================================"); 
+    printf ("\n\n");
+    print_symbol(tds);
+    printf("=================================================================");
 
-  debug("==== QUADS ======================================================\n"); 
-  if(DEBUG) print_quads(whole_code);
-  debug("=================================================================\n\n");
+    printf("==== QUADS ======================================================"); 
+    print_quads(whole_code);
+    printf("=================================================================");
+  }
   FILE* fp_out = fopen("out.s", "w");
   gen_data(fp_out, tds);
   gen_code(fp_out, whole_code);

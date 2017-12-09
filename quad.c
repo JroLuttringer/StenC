@@ -10,14 +10,15 @@ quad* quad_gen(op i, symbol* arg1, symbol* arg2, symbol* result ){
     return new_q;
 }
 
-void free_quad(quad* q)
+void free_quad(quad* q) {
     quad* tmp;
     while (q != NULL){
         tmp = q;
         q = q->next;
-        free_symbol(q->arg1);
-        free_symbol(q->arg2);
-        free_symbol(q->result);
+        free_symbol(tmp->arg1);
+        free_symbol(tmp->arg2);
+        free_symbol(tmp->result);
+        free(tmp);
     }
 }
 
