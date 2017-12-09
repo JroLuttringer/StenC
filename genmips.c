@@ -1,7 +1,27 @@
 #include "genmips.h"
 
 
+void change_symbol_table(symbol* tds){
+  symbol* tmp = tds;
+  char *c;
+  while(tmp){
+    if( (c=strstr(tmp->name, "@@")) ){
+      *c='_';
+      *(c+1)='_';
+    } else{
+      char* new_name = realloc(tmp->name,strlen(tmp->name)+3);
+      if(!new_name){printf("problem while generating code \n"); exit(-1);}
+      //free(tmp->name);
+      tmp->name = new_name;
+      strcat(tmp->name, "__\0");
+    }
+    tmp=tmp->next;
+  }
+}
+
+
 void gen_data(FILE* mips_file, symbol* tds){
+  change_symbol_table(tds);
   fprintf(mips_file,".data\n");
   symbol* tmp = tds;
   int size = 0;

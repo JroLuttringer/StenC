@@ -7,7 +7,7 @@ symbol* new_temp(symbol** head){
     s->is_constant=false;
     s->value = 0; 
     s->name = (char*)malloc(NAME_LENGTH);
-    snprintf(s->name, NAME_LENGTH, "__temp_%d", nb++); 
+    snprintf(s->name, NAME_LENGTH, "@@temp_%d", nb++); 
     s->next = NULL;
 
 
@@ -68,9 +68,9 @@ symbol* new_integer(symbol** head, int value){
     s->value = value;
     s->name = (char*)malloc(NAME_LENGTH);
     if(value >=0)
-        snprintf(s->name, NAME_LENGTH, "__const_%d", value); 
+        snprintf(s->name, NAME_LENGTH, "@@const_%d", value); 
     else
-        snprintf(s->name, NAME_LENGTH, "__negconst_%d", value*-1); 
+        snprintf(s->name, NAME_LENGTH, "@@negconst_%d", value*-1); 
   
     s->next = NULL;
     symbol* tmp = *head;
@@ -92,7 +92,7 @@ symbol* new_label(symbol** head){
     s->value = 0;
     s->type = LABEL;
     s->name = (char*)malloc(NAME_LENGTH);
-    snprintf(s->name, NAME_LENGTH, "__label_%d", nb++);
+    snprintf(s->name, NAME_LENGTH, "@@label_%d", nb++);
     s->next = NULL;
     symbol* tmp = *head;
     if(tmp == NULL) *head = s;
@@ -114,7 +114,7 @@ symbol* new_string(symbol** head, char* val){
     s->string = (char*)malloc(l);
     strncpy(s->string, val, l);
     s->name = (char*)malloc(NAME_LENGTH);
-    snprintf(s->name, NAME_LENGTH, "__string_%d", nb++);
+    snprintf(s->name, NAME_LENGTH, "@@string_%d", nb++);
     s->next = NULL;
     symbol* tmp = *head;
     if(tmp == NULL) *head = s;
@@ -163,7 +163,7 @@ symbol* add(symbol** head, char* name){
 void print_symbol(symbol* head){
   symbol* tmp = head;
   while(tmp != NULL ){
-    if (strstr(tmp->name, "__string")) 
+    if (strstr(tmp->name, "@@string")) 
     printf("%s\t\t%s\t\t(isconstant : %d)\n", tmp->name, tmp->string, tmp->is_constant);
         else
     printf("%s\t\t%d\t\t(isconstant : %d)\n", tmp->name, tmp->value, tmp->is_constant);

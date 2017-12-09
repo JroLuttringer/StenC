@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include "symbol.h"
 #include "quad.h"
-
+#include <string.h>
 
 void gen_data(FILE*, symbol* );
 void gen_interrupt(FILE*);

@@ -273,7 +273,7 @@ variable:
     }
   | array 
     {
-      symbol* four = lookup(tds, "__const_4");
+      symbol* four = lookup(tds, "@@const_4");
       if (four == NULL) four = new_integer(&tds, 4);
       //Pour multiplier l'offset par la taille d'un int
 
@@ -317,7 +317,7 @@ array: ID '[' expression ']'
     int nth_dim_size = get_nth_dim($$.nb_dim, $1.base->array.dim_list);
     printf("nth_dim size is %d\n", nth_dim_size);
     char* int_name = (char*)malloc(NAME_LENGTH);
-    snprintf(int_name, NAME_LENGTH, "__const_%d", nth_dim_size); 
+    snprintf(int_name, NAME_LENGTH, "@@const_%d", nth_dim_size); 
 
     symbol* dim_size = lookup(tds, int_name);
     if (dim_size == NULL) dim_size = new_integer(&tds, nth_dim_size);
@@ -373,7 +373,7 @@ declaration:
     int i = 0;
 
     //for address use
-    symbol* four = lookup(tds, "__const_4");
+    symbol* four = lookup(tds, "@@const_4");
     if (four == NULL) four = new_integer(&tds, 4);
 
     symbol* base = new_temp(&tds);
@@ -388,7 +388,7 @@ declaration:
       //create symbol of value i if doesnt exist
 
       char tmp_name[42];
-      sprintf(tmp_name,"%s%d","__const_",i);
+      sprintf(tmp_name,"%s%d","@@const_",i);
       indice = lookup(tds, tmp_name);
       if (indice == NULL) indice = new_integer(&tds, i);
 
@@ -411,9 +411,9 @@ ARRAY_DECLARATION:
     {
       char tmp_name[256];
       if($1 >= 0)
-        sprintf(tmp_name,"%s%d","__const_",$3);
+        sprintf(tmp_name,"%s%d","@@const_",$3);
       else{
-        sprintf(tmp_name,"%s%d","__negconst_",$3*-1);
+        sprintf(tmp_name,"%s%d","@@negconst_",$3*-1);
         printf("lookup : %s \n", tmp_name);
       }
       symbol* s = lookup(tds, tmp_name);
@@ -434,9 +434,9 @@ ARRAY_DECLARATION:
     {
       char tmp_name[256];
       if($1 >= 0)
-        sprintf(tmp_name,"%s%d","__const_",$3);
+        sprintf(tmp_name,"%s%d","@@const_",$3);
       else{
-        sprintf(tmp_name,"%s%d","__negconst_",$3*-1);
+        sprintf(tmp_name,"%s%d","@@negconst_",$3*-1);
         printf("lookup : %s \n", tmp_name);
       }
       symbol* s = lookup(tds, tmp_name);
@@ -633,7 +633,7 @@ expression:
   | '-' expression %prec NEG
     {
       printf("-E\n");
-      symbol* minus_one = lookup(tds, "__negconst_1");
+      symbol* minus_one = lookup(tds, "@@negconst_1");
       if (minus_one == NULL){
         minus_one = new_integer(&tds,-1);
       }    
@@ -676,7 +676,7 @@ expression:
         fprintf(stderr, "unknown variable %s used in arith. expr\n", $1);
         return 0;
       }
-      symbol* cst_1 = lookup(tds, "__const_1"); //TODO @
+      symbol* cst_1 = lookup(tds, "@@const_1"); //TODO @
       if(!cst_1){
         cst_1 = new_integer(&tds, 1);
       }
@@ -693,7 +693,7 @@ expression:
         fprintf(stderr, "unknown variable %s used in arith. expr\n", $1);
         return 0;
       }
-      symbol* cst_1 = lookup(tds, "__const_1");
+      symbol* cst_1 = lookup(tds, "@@const_1");
       if(!cst_1) {
         cst_1 = new_integer(&tds, 1);
       }
@@ -725,9 +725,9 @@ expression:
     { 
       char tmp_name[256];
       if($1 >= 0)
-        sprintf(tmp_name,"%s%d","__const_",$1);
+        sprintf(tmp_name,"%s%d","@@const_",$1);
       else{
-        sprintf(tmp_name,"%s%d","__negconst_",$1*-1);
+        sprintf(tmp_name,"%s%d","@@negconst_",$1*-1);
         printf("lookup : %s \n", tmp_name);
       }
     
