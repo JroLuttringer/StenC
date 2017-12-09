@@ -425,7 +425,7 @@ declaration:
     update_array(s, $6);
     s->array.size = ($4+2*($4))*(1+2*($6-1));
 
-    printf("recognised init of stenci of size %d\n", s->array.size);
+    if (DEBUG) printf("recognised init of stenci of size %d\n", s->array.size);
     //affect à toute les positions de l'array les valeures de la sym_list
     $$.code = $9.code;
     int i = 0;
