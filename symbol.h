@@ -53,5 +53,6 @@ symbol* lookup(symbol*, char*);
 void print_symbol(symbol*);
 symbol* add(symbol**, char* );
 void free_symbol(symbol*);
+void free_sym_list(sym_list*);
 
 #endif

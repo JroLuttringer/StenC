@@ -335,6 +335,7 @@ array: ID '[' expression ']'
 
     symbol* dim_size = lookup(tds, int_name);
     if (dim_size == NULL) dim_size = new_integer(&tds, nth_dim_size);
+    else free(int_name);
 
     symbol* mult = new_temp(&tds);
     symbol* add  = new_temp(&tds);
@@ -389,7 +390,6 @@ declaration:
     //affect à toute les positions de l'array les valeures de la sym_list
     $$.code = $5.code;
     int i = 0;
-
     //for address use
     symbol* four = lookup(tds, "@@const_4");
     if (four == NULL) four = new_integer(&tds, 4);
@@ -420,7 +420,10 @@ declaration:
       sym = get_nth_sym(i, $5.list);
       q = quad_gen(Q_SET_AV, sym, NULL, address);
       $$.code = concat_quad($$.code, q);
+
     }
+    free_sym_list($5.list);
+
   }
     | STENCIL ID '{' INTEGER ',' INTEGER '}' ASSIGN init_array
   {

@@ -259,3 +259,14 @@ symbol* get_nth_sym(int sym_nb, sym_list* l) {
    // if(!(l)) printf("But it's null :/\n");
     return l->sym;
 }
+
+void free_sym_list(sym_list* sl){
+    if(!sl) return;
+    sym_list* tmp = sl;
+    while(sl){
+        tmp = sl;
+        sl = sl->next;
+      //  if(tmp->q)free_quad(tmp->q);
+        free(tmp);
+    }
+}
