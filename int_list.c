@@ -2,6 +2,7 @@
 
 int_list* new_int_list(int k){
     int_list* n = malloc(sizeof(int_list));
+    CHECK(n);
     n->next = NULL;
     n->value = k;
     return n;
@@ -31,6 +32,7 @@ int_list* add_int_lists(int_list* l1, int_list* l2)	{
 
 int_list* add_int_to_list(int_list* l, int n){
     int_list* new = malloc(sizeof(int_list));
+    CHECK(new);
     new->value = n;
     new->next = NULL;
     if(l == NULL) return new;

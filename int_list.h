@@ -2,6 +2,7 @@
 #define __INT_LIST_H__
 
 #include <stdlib.h>
+#include "check.h"
 
 typedef struct int_list {
     struct int_list* next;
