@@ -10,7 +10,7 @@ void free_symbol(symbol* s){
         if(tmp){
             if(tmp->name)free(tmp->name);
             if(tmp->type == STRING_TYPE) free(tmp->string);
-            if(tmp->type == ARRAY) free_int_list(tmp->array.dim_list);
+            if(tmp->type == ARRAY || tmp->type == STENCIL) free_int_list(tmp->array.dim_list);
             free(tmp);
         }
     }
@@ -254,9 +254,10 @@ sym_list* concat_sym_list(sym_list* l1, sym_list* l2){
 
 symbol* get_nth_sym(int sym_nb, sym_list* l) {
   //  printf("getting %d sym\n", sym_nb);
-    for ( int i = 0; i < sym_nb; i++) l = l->next;
+    for ( int i = 0; i < sym_nb && l!=NULL; i++) l = l->next;
   //  printf("got it ! \n");
    // if(!(l)) printf("But it's null :/\n");
+    if(!l) {printf("Error : element index > array size\n"); exit(-1);}
     return l->sym;
 }
 

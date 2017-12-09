@@ -383,6 +383,7 @@ declaration:
   | INT_TYPE ARRAY_DECLARATION
   {
   if(DEBUG) printf("recognised int_type array_declaration\n");
+    $$.code = NULL;
   }
   | INT_TYPE ARRAY_DECLARATION ASSIGN '{'init_array'}'
   {
@@ -427,7 +428,13 @@ declaration:
   }
     | STENCIL_TYPE ID '{' INTEGER ',' INTEGER '}' ASSIGN init_array
   {
+    if(lookup(tds, $2)) {
+      print_error("Redefinition of ", $2);
+      free($2);
+      return 0;
+    }
     symbol* s = new_stencil(&tds, $2, $4);
+    free($2);
     update_array(s, $6);
     s->array.size = (1+2*($4))*(1+2*($6-1));
 
@@ -467,6 +474,7 @@ declaration:
       q = quad_gen(Q_SET_AV, sym, NULL, address);
       $$.code = concat_quad($$.code, q);
     }
+    free_sym_list($9.list);
   }
   ;
 
@@ -809,11 +817,13 @@ expression:
       //verify stencil exists
       symbol* stencil = lookup(tds, $3);
       if (stencil == NULL) {
-        printf("Stencil utilisé mais pas déclaré\n");
+        print_error("Unknown ID", $3);
+        free($3);
         return 0;
       }
       if (stencil->type != STENCIL) {
-        printf("Erreur, utilisation de '$' sur qqc qui n'est pas un stencil\n");
+        print_error($3, "is not a stencil");
+        free($3);
         return 0;
       }
       if (DEBUG) printf("checkpoint %d \n", checkpoint++);
@@ -909,7 +919,8 @@ expression:
 
 
       if (DEBUG) printf("Recognised array $ ID\n");
-      
+      free($3);
+
     }
     ;
 %%
@@ -948,6 +959,8 @@ int main(int argc, char** argv) {
   free_symbol(tds);
   free_quad(whole_code);
   
+
+
   yylex_destroy();  
 
   return 0;

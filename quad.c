@@ -8,6 +8,7 @@ quad* quad_gen(op i, symbol* arg1, symbol* arg2, symbol* result ){
     new_q->arg2 = arg2;
     new_q->result = result;
     new_q->next = NULL;
+    new_q->argi2 = 0;
     return new_q;
 }
 
