@@ -419,6 +419,49 @@ declaration:
       $$.code = concat_quad($$.code, q);
     }
   }
+    | STENCIL ID '{' INTEGER ',' INTEGER '}' ASSIGN init_array
+  {
+    symbol* s = new_array(&tds, $2, $4);
+    update_array(s, $6);
+    s->array.size = ($4+2*($4))*(1+2*($6-1));
+
+    printf("recognised init of stenci of size %d\n", s->array.size);
+    //affect à toute les positions de l'array les valeures de la sym_list
+    $$.code = $9.code;
+    int i = 0;
+
+    //for address use
+    symbol* four = lookup(tds, "@@const_4");
+    if (four == NULL) four = new_integer(&tds, 4);
+
+    symbol* base = new_temp(&tds);
+    quad* q  = quad_gen(Q_LA, s, NULL, base);
+    $$.code = concat_quad($$.code, q);
+    symbol* indice;
+    symbol* offset;
+    symbol* address;
+    symbol* sym;
+
+    for(i=0; i < s->array.size; i++) {
+      //create symbol of value i if doesnt exist
+
+      char tmp_name[42];
+      sprintf(tmp_name,"%s%d","@@const_",i);
+      indice = lookup(tds, tmp_name);
+      if (indice == NULL) indice = new_integer(&tds, i);
+
+      offset = new_temp(&tds);
+      q = quad_gen(Q_MULT, indice, four, offset);
+      $$.code = concat_quad($$.code, q);
+      address = new_temp(&tds);
+      q = quad_gen(Q_ADD, base, offset, address);
+      $$.code = concat_quad($$.code, q);
+
+      sym = get_nth_sym(i, $9.list);
+      q = quad_gen(Q_SET_AV, sym, NULL, address);
+      $$.code = concat_quad($$.code, q);
+    }
+  }
   ;
 
 ARRAY_DECLARATION:
