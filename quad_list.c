@@ -2,6 +2,7 @@
 
 quad_list* new_list(quad* q){
     quad_list* lq = malloc(sizeof(quad_list));
+    CHECK(lq);    
     lq -> q = q;
     lq -> next = NULL;
     return lq;
@@ -9,6 +10,7 @@ quad_list* new_list(quad* q){
 
 quad_list* add_quad_list(quad_list* ql, quad* q){
     quad_list* new_ql = malloc(sizeof(quad_list));
+    CHECK(new_ql);
     new_ql->q = q;
     new_ql->next = NULL;
     if(!ql){

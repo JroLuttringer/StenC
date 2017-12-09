@@ -313,6 +313,7 @@ array: ID '[' expression ']'
     int nth_dim_size = get_nth_dim($$.nb_dim, $1.base->array.dim_list);
     if(DEBUG) printf("nth_dim size is %d\n", nth_dim_size);
     char* int_name = (char*)malloc(NAME_LENGTH);
+    CHECK(int_name);
     snprintf(int_name, NAME_LENGTH, "@@const_%d", nth_dim_size); 
 
     symbol* dim_size = lookup(tds, int_name);

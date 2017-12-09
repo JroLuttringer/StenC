@@ -2,6 +2,7 @@
 
 quad* quad_gen(op i, symbol* arg1, symbol* arg2, symbol* result ){
     quad* new_q = (quad*) malloc(sizeof(quad));
+    CHECK(new_q);
     new_q->i = i;
     new_q->arg1 = arg1; 
     new_q->arg2 = arg2;
