@@ -754,9 +754,9 @@ int main(int argc, char** argv) {
   gen_data(fp_out, tds);
   gen_code(fp_out, whole_code);
   fclose(fp_out);
-
-
-
   fclose(fp_in);
+  free_quad(whole_code);
+  free_symbol(tds);
+  
   return 0;
 }

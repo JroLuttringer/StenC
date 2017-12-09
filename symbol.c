@@ -3,9 +3,17 @@ static int nb ;
 
 
 void free_symbol(symbol* s){
-    free(s->name);
-    free(s);
+    symbol* tmp;
+    while (s != NULL){
+        tmp = s;
+        s = s->next;
+        if(tmp){
+            //free(tmp);
+            //if(tmp->name)free(tmp->name);
+        }
+    }
 }
+
 
 symbol* new_temp(symbol** head){
     symbol* s = (symbol*)malloc(sizeof(symbol));
