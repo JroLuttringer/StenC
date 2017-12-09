@@ -14,8 +14,8 @@ void free_quad_list(quad_list* q){
     while(q){
         tmp =q;
         q = q->next;
-        if(tmp->q)free_quad(tmp->q);
-        free(q);
+      //  if(tmp->q)free_quad(tmp->q);
+        free(tmp);
     }
 }
 

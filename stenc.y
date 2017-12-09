@@ -161,6 +161,9 @@ statement:
       $$.code = concat_quad( $3.code, true_label);
       $$.code = concat_quad( $$.code, $6.code);
       $$.code = concat_quad( $$.code, false_label);
+      free_quad_list($3.truelist);
+      free_quad_list($3.falselist);
+
     }
   | IF '('boolean_expression')' '{'statement_list'}' ELSE '{'statement_list'}' 
     {
@@ -180,6 +183,10 @@ statement:
       $$.code = concat_quad( $$.code, false_label); // goto else
       $$.code = concat_quad( $$.code, $10.code); // else code
       $$.code = concat_quad( $$.code, next_label); // skip label
+
+      free_quad_list($3.truelist);
+      free_quad_list($3.falselist);
+
     }
    
   | WHILE '(' boolean_expression ')' '{'statement_list'}' {
@@ -203,6 +210,8 @@ statement:
       $$.code = concat_quad($$.code, goto_while);
       //label next
 			$$.code = concat_quad($$.code, false_label);   
+      free_quad_list($3.truelist);
+      free_quad_list($3.falselist);
   }
 
   | FOR '('assignement';' boolean_expression ';' expression ')' '{'statement_list'}' {
@@ -226,7 +235,8 @@ statement:
       $$.code = concat_quad($$.code, $7.code); // expression
       $$.code = concat_quad($$.code, goto_begin_for); // ré évaluer booleen
       $$.code = concat_quad($$.code, label_skip_for);  // sortir du for
-      
+      free_quad_list($5.truelist);
+      free_quad_list($5.falselist);
   }
   | RETURN expression ';' {
     $$.code = NULL;
@@ -261,8 +271,10 @@ variable:
       symbol* s;    
       if((s=lookup(tds, $1)) == NULL){
         print_error("Unkown ID ", $1);
+        free($1);
         return 0;
       }
+      //free($1);
       $$.code = NULL;
       $$.result = s;
     }
@@ -300,8 +312,10 @@ array: ID '[' expression ']'
       $$.nb_dim = 1;
       if ($$.base == NULL) {
         print_error("Unkown ID ", $1);
+        free($1);
         return 0;
       }
+    //  free($1);
       $$.code   = concat_quad($$.code, $3.code);
   }
   | array '[' expression ']'
@@ -338,8 +352,10 @@ declaration:
         add(&tds, $2);
       } else {
         print_error("Redefinition of ", $2);
+        free($2);
         return 0;
       }
+     // free($2);
       $$.code = NULL;
     }
   | INT_TYPE ID ASSIGN expression 
@@ -350,10 +366,12 @@ declaration:
         s=add(&tds, $2);
       } else {
         print_error("Redeclaration of ", $2);
+        free($2);
         return 0;
       }
       quad* q = quad_gen(Q_ASSIGN, $4.result, NULL, s);
      // $$.result = q->result;
+     // free($2);
       $$.code = NULL;
       $$.code = concat_quad($$.code, $4.code);
       $$.code = concat_quad($$.code, q);
@@ -421,9 +439,12 @@ ARRAY_DECLARATION:
       if (s != NULL) 
       {
         print_error(" Redeclaration of ", $1);
+        free($1);
         return 0;
       }
+
       s = new_array(&tds, $1, $3);
+    //  free($1);
       $$ = s;
 
     }
@@ -659,9 +680,10 @@ expression:
       symbol* s = lookup(tds, $1);
       if(!s) {
         print_error("Unkown ID", $1);
+        free($1);
         return 0;
       }
-      symbol* cst_1 = lookup(tds, "@@const_1"); //TODO @
+      symbol* cst_1 = lookup(tds, "@@const_1"); 
       if(!cst_1){
         cst_1 = new_integer(&tds, 1);
       }
@@ -669,6 +691,7 @@ expression:
       quad* q = quad_gen(Q_ADD, s, cst_1, s);
       $$.code = NULL;
       $$.code = concat_quad($$.code, q);
+     // free($1);
     }
 
   | ID DECR 
@@ -676,6 +699,7 @@ expression:
       symbol* s = lookup(tds, $1);
       if(!s) {
         print_error("Unkown variable used in expression ", $1);
+        free($1);
         return 0;
       }
       symbol* cst_1 = lookup(tds, "@@const_1");
@@ -686,6 +710,7 @@ expression:
       quad* q = quad_gen(Q_SUB, s, cst_1, s);
       $$.code = NULL;
       $$.code = concat_quad($$.code, q);
+      //free($1);
 
     }
 
