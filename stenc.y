@@ -23,8 +23,8 @@
 %}
 %locations
 
-%token ID INT_TYPE VOID_TYPE COMMENT INTEGER PRINTI PRINTF STRING MAIN RETURN ASSIGN
-%token IF ELSE WHILE DO FOR INCR DECR LOG_AND LOG_OR LOG_EQ GE LE NE GT LT NOT L STENCIL
+%token ID INT_TYPE STENCIL_TYPE VOID_TYPE COMMENT INTEGER PRINTI PRINTF STRING MAIN RETURN ASSIGN
+%token IF ELSE WHILE DO FOR INCR DECR LOG_AND LOG_OR LOG_EQ GE LE NE GT LT NOT L
 %left ',' 
 %left LOG_OR
 %left LOG_AND
@@ -74,7 +74,7 @@
 %type <value> INTEGER
 %type <expr> expression variable
 %type <init_list> init_array inside_array
-%type <array_access> array
+%type <array_access> array 
 %type <cond> boolean_expression
 %type <statement> statement statement_list program s assignement declaration COMMENT 
 %%
@@ -422,7 +422,7 @@ declaration:
       $$.code = concat_quad($$.code, q);
     }
   }
-    | STENCIL ID '{' INTEGER ',' INTEGER '}' ASSIGN init_array
+    | STENCIL_TYPE ID '{' INTEGER ',' INTEGER '}' ASSIGN init_array
   {
     symbol* s = new_array(&tds, $2, $4);
     update_array(s, $6);
@@ -513,41 +513,41 @@ ARRAY_DECLARATION:
 
 init_array:  
   inside_array
-  {
-    $$.list = $1.list;
-    $$.code = $1.code;
-  }
-  | init_array ',' inside_array
-  {
-    $$.list = concat_sym_list($1.list, $3.list);
-    sym_list* tmp = $$.list;
-    int size = 0;
-    while (tmp) {
-      tmp = tmp->next;size++;
+    {
+      $$.list = $1.list;
+      $$.code = $1.code;
     }
-    $$.code = concat_quad($1.code, $3.code);
-  }
+  | init_array ',' inside_array
+    {
+      $$.list = concat_sym_list($1.list, $3.list);
+      sym_list* tmp = $$.list;
+      int size = 0;
+      while (tmp) {
+        tmp = tmp->next;size++;
+      }
+      $$.code = concat_quad($1.code, $3.code);
+    }
   ;
 
 
 inside_array:  
   expression 
-  {
-    $$.list = new_sym_list($1.result);
-    //create int_list with expr
-    $$.code = $1.code;
-  }
+    {
+      $$.list = new_sym_list($1.result);
+      //create int_list with expr
+      $$.code = $1.code;
+    }
   | '{'init_array'}'
-  {
-    $$.list = $2.list;
-    $$.code = $2.code;
-  }
+    {
+      $$.list = $2.list;
+      $$.code = $2.code;
+    }
   ;
 
 
 
 boolean_expression: boolean_expression LOG_OR boolean_expression 
-  {
+    {
       $$.truelist = NULL;
       $$.falselist = NULL;
       symbol* label = new_label(&tds);
@@ -559,7 +559,7 @@ boolean_expression: boolean_expression LOG_OR boolean_expression
       quad* q_label = quad_gen(Q_LABEL, NULL, NULL, label);
       $$.code = concat_quad($1.code, q_label);
       $$.code = concat_quad($$.code, $3.code);
-  }
+    }
   | boolean_expression LOG_AND boolean_expression
     {
       $$.truelist = NULL;
@@ -638,7 +638,8 @@ boolean_expression: boolean_expression LOG_OR boolean_expression
       $$.truelist = new_list(q_true);
       $$.falselist = new_list(q_false);
     }
-  | expression NE expression {
+  | expression NE expression 
+    {
       quad* q_true = quad_gen(Q_NE, $1.result, $3.result, NULL);
       quad* q_false= quad_gen(Q_GOTO, NULL, NULL, NULL);
       $$.code = NULL;
@@ -648,7 +649,7 @@ boolean_expression: boolean_expression LOG_OR boolean_expression
       $$.code = concat_quad($$.code, q_false);
       $$.truelist = new_list(q_true);
       $$.falselist = new_list(q_false);
-  }
+    }
   | NOT boolean_expression 
     {
       $$.truelist = $2.falselist;
@@ -795,7 +796,27 @@ expression:
       if(s == NULL)
         s=new_integer(&tds, $1); 
       $$.result = s; 
-    };
+    }
+  | array '$' ID
+    {
+    /*
+      $$.code = $1.code;
+      //verify four exists
+      symbol* four = lookup(tds, "@@const_4");
+      if (four == NULL) four = new_integer(&tds, 4);
+
+      //array.base + array.offset * 4 = address to load
+      quad* q = MULT offset 4 
+      $$.code = concat_quad($$.code , q);
+      q = ADD base temp temp2;
+      $$.code = concat_quad($$.code , q);
+      q = lw temp2 value
+      $$.code = concat_quad($$.code , q);
+      if (debug) printf("Recognised ")
+      X_STENC = $3->array.
+      */
+    }
+    ;
 %%
 
 void yyerror(char *str){
