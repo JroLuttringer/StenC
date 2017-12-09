@@ -19,6 +19,8 @@ string \"(\\.|[^"])*\"
 %%
 
 "int"    { return INT_TYPE; }
+"stencil" {return STENCIL;}
+"$"      {return yytext[0];}
 "if"     { return IF; }
 "for"    { return FOR;}
 "else"   { return ELSE; }

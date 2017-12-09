@@ -15,8 +15,8 @@
 %}
 
 %token ID INT_TYPE VOID_TYPE COMMENT INTEGER PRINTI PRINTF STRING MAIN RETURN ASSIGN
-%token IF ELSE WHILE DO FOR INCR DECR LOG_AND LOG_OR LOG_EQ GE LE NE GT LT NOT L
-%left ','  
+%token IF ELSE WHILE DO FOR INCR DECR LOG_AND LOG_OR LOG_EQ GE LE NE GT LT NOT L STENCIL
+%left ','  STENCIL '$'
 %left LOG_OR
 %left LOG_AND
 %left LOG_EQ NE
@@ -345,6 +345,9 @@ declaration:
       }
       $$.code = NULL;
     }
+  | STENCIL ID ASSIGN '{' init_stencil '}' {
+    
+  }
   | INT_TYPE ID ASSIGN expression 
     {
       symbol* s;
