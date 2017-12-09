@@ -25,6 +25,7 @@ void gen_data(FILE* mips_file, symbol* tds){
   fprintf(mips_file,".data\n");
   symbol* tmp = tds;
   int size = 0;
+  int i;
   while(tmp){
       switch(tmp->type){
         case LABEL:
@@ -36,7 +37,7 @@ void gen_data(FILE* mips_file, symbol* tds){
           size = tmp->array.size;
           //printf("Size of array is %d\n", size);
           fprintf(mips_file, "%s:\t.word", tmp->name);
-          for (int i = 0; i < size; i++) fprintf(mips_file, " 0");
+          for (i = 0; i < size; i++) fprintf(mips_file, " 0");
           fprintf(mips_file, "\n");
           break;
         case CONSTANT:

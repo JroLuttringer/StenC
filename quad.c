@@ -15,9 +15,9 @@ void free_quad(quad* q) {
     while (q != NULL){
         tmp = q;
         q = q->next;
-        if(tmp->arg1)free_symbol(tmp->arg1);
-        if(tmp->arg2)free_symbol(tmp->arg2);
-        if(tmp->result)free_symbol(tmp->result);
+      //  if(tmp->arg1)free_symbol(tmp->arg1);
+      //  if(tmp->arg2)free_symbol(tmp->arg2);
+      //  if(tmp->result)free_symbol(tmp->result);
         free(tmp);
     }
 }

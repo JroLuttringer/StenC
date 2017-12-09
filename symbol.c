@@ -8,8 +8,8 @@ void free_symbol(symbol* s){
         tmp = s;
         s = s->next;
         if(tmp){
-            //free(tmp);
-            //if(tmp->name)free(tmp->name);
+            if(tmp->name)free(tmp->name);
+            free(tmp);
         }
     }
 }
