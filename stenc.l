@@ -6,16 +6,15 @@
   #include "quad.h"
   #include "quad_list.h"
   #include "y.tab.h"
-  #include "y.tab.h"
 
 %}
 
+%option yylineno
 
 id    [_a-zA-Z][_a-zA-Z0-9]*
 int 0|([1-9][0-9]*)
 comment ("/*"([^*]|(\*+[^*/]))*"*"+"/")|("//"[^\n]*\n)
 string \"(\\.|[^"])*\"
-
 %%
 
 "int"    { return INT_TYPE; }

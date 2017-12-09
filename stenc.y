@@ -8,15 +8,23 @@
   #include <string.h>
 
   void yyerror( char*);
+  void debug(char*);
+  void print_error(char*, char*);
   int yylex();
   extern FILE* yyin;
   symbol* tds = NULL;
+  quad* whole_code = NULL;
+
+  #define ERR_LENGTH 64
+  #define DEBUG 0
+  extern int yylineno; 
 
 %}
+%locations
 
 %token ID INT_TYPE VOID_TYPE COMMENT INTEGER PRINTI PRINTF STRING MAIN RETURN ASSIGN
-%token IF ELSE WHILE DO FOR INCR DECR LOG_AND LOG_OR LOG_EQ GE LE NE GT LT NOT L STENCIL
-%left ','  STENCIL '$'
+%token IF ELSE WHILE DO FOR INCR DECR LOG_AND LOG_OR LOG_EQ GE LE NE GT LT NOT L
+%left ',' 
 %left LOG_OR
 %left LOG_AND
 %left LOG_EQ NE
@@ -60,7 +68,7 @@
 
 }
 
-%type <symbol> tag ARRAY_DECLARATION
+%type <symbol> ARRAY_DECLARATION
 %type <string> ID STRING
 %type <value> INTEGER
 %type <expr> expression variable
@@ -71,18 +79,10 @@
 %%
 s: program 
 {
-  printf("Match ! \n\n");
+  debug("Match ! \n\n");
   $$.code = NULL;
   $$.code = concat_quad($$.code, $1.code);
-  printf("==== QUADS ======================================================\n"); 
-  print_quads($$.code);
-  printf("=================================================================\n\n");
-  FILE* fp = fopen("simple_arithm.asm", "w");
-  gen_data(fp, tds);
-  gen_code(fp, $$.code);
-  fclose(fp);
-
-
+  whole_code = $$.code;
   return 0;
 };
 
@@ -99,7 +99,7 @@ program: INT_TYPE MAIN '(' ')' '{' statement_list RETURN expression ';' '}'
 statement_list: 
   statement_list  statement  
     { 
-      printf("concat du statement \n");
+      debug("concat du statement \n");
       $$.next = $2.next;
       //complete_quad_list($1.next, $2);
       $$.code = NULL;
@@ -119,7 +119,7 @@ statement:
       $$.code = NULL;
       $$.code = concat_quad($$.code, $1.code);
     }
-  | declaration ';'
+  | declaration ';' 
     {
       $$.code = NULL;
       $$.code = $1.code;
@@ -143,15 +143,12 @@ statement:
   | PRINTF '(' STRING ')' ';' 
     {
       $$.code = NULL;
-      printf("test\n");
-      printf("saw printf %s\n", $3);
       symbol* s = new_string(&tds, $3);
       quad* q = quad_gen(Q_PRINTF,NULL, NULL, s);
       $$.code = concat_quad($$.code, q);    
     }   
   | boolean_expression ';' 
     {
-        printf("buginator boolean_expr ;\n");
       $$.code = $1.code;
     }
   | IF '('boolean_expression')' '{'statement_list'}' %prec IFX
@@ -256,7 +253,6 @@ assignement:
     }
   | variable ASSIGN assignement
     {
-      printf("in variable assign assignment\n");
     }
   ;
 
@@ -265,7 +261,7 @@ variable:
     {
       symbol* s;    
       if((s=lookup(tds, $1)) == NULL){
-        fprintf(stderr, "unknown variable %s", $1);
+        print_error("Unkown ID ", $1);
         return 0;
       }
       $$.code = NULL;
@@ -296,15 +292,16 @@ variable:
     }
   ;
 
+
 array: ID '[' expression ']'
   { 
       $$.code = NULL;
       $$.offset = $3.result;
       $$.base = lookup(tds, $1);
       $$.nb_dim = 1;
-      if ($$.base == NULL) 
-      {
-        printf("Error id does not exist\n");
+      if ($$.base == NULL) {
+        print_error("Unkown ID ", $1);
+        return 0;
       }
       $$.code   = concat_quad($$.code, $3.code);
   }
@@ -315,7 +312,7 @@ array: ID '[' expression ']'
     $$.nb_dim = $1.nb_dim + 1;
 
     int nth_dim_size = get_nth_dim($$.nb_dim, $1.base->array.dim_list);
-    printf("nth_dim size is %d\n", nth_dim_size);
+    //debug("nth_dim size is %d\n", nth_dim_size);
     char* int_name = (char*)malloc(NAME_LENGTH);
     snprintf(int_name, NAME_LENGTH, "@@const_%d", nth_dim_size); 
 
@@ -337,25 +334,22 @@ declaration:
     {
       symbol* s;
       if((s=lookup(tds, $2)) == NULL){
-        printf("adding a variable\n");
+       // printf("adding a variable\n");
         add(&tds, $2);
       } else {
-        fprintf(stderr, "redefinition of %s\n", $2);
+        print_error("Redefinition of ", $2);
         return 0;
       }
       $$.code = NULL;
     }
-  | STENCIL ID ASSIGN '{' init_stencil '}' {
-    
-  }
   | INT_TYPE ID ASSIGN expression 
     {
       symbol* s;
       if((s=lookup(tds, $2)) == NULL){
-        printf("declaring %s\n", $2);
+       // printf("declaring %s\n", $2);
         s=add(&tds, $2);
       } else {
-        fprintf(stderr, "redefinition of %s\n", $2);
+        print_error("Redeclaration of ", $2);
         return 0;
       }
       quad* q = quad_gen(Q_ASSIGN, $4.result, NULL, s);
@@ -366,11 +360,11 @@ declaration:
     }
   | INT_TYPE ARRAY_DECLARATION
   {
-    printf("recognised int_type array_declaration\n");
+  //  printf("recognised int_type array_declaration\n");
   }
   | INT_TYPE ARRAY_DECLARATION ASSIGN '{'init_array'}'
   {
-    printf("recongnised init array assigned to tab but not assigning yet\n");
+  //  printf("recongnised init array assigned to tab but not assigning yet\n");
     //affect à toute les positions de l'array les valeures de la sym_list
     $$.code = $5.code;
     int i = 0;
@@ -417,16 +411,16 @@ ARRAY_DECLARATION:
         sprintf(tmp_name,"%s%d","@@const_",$3);
       else{
         sprintf(tmp_name,"%s%d","@@negconst_",$3*-1);
-        printf("lookup : %s \n", tmp_name);
+      //  printf("lookup : %s \n", tmp_name);
       }
       symbol* s = lookup(tds, tmp_name);
       if(s == NULL) s=new_integer(&tds, $3); 
-      printf("Creating new array\n");
+     // printf("Creating new array\n");
       
       s = lookup(tds, $1);
       if (s != NULL) 
       {
-        printf("ERROR redeclaration of array\n");
+        print_error(" Redeclaration of ", $1);
         return 0;
       }
       s = new_array(&tds, $1, $3);
@@ -440,13 +434,14 @@ ARRAY_DECLARATION:
         sprintf(tmp_name,"%s%d","@@const_",$3);
       else{
         sprintf(tmp_name,"%s%d","@@negconst_",$3*-1);
-        printf("lookup : %s \n", tmp_name);
+       // printf("lookup : %s \n", tmp_name);
       }
       symbol* s = lookup(tds, tmp_name);
       if(s == NULL) s=new_integer(&tds, $3); 
       update_array($1, $3);
       $$ = $1;
     }
+    ;
 
 
 init_array:  
@@ -463,18 +458,16 @@ init_array:
     while (tmp) {
       tmp = tmp->next;size++;
     }
-    printf("size : %d\n",size);
-   // if($1.list == NULL || $3.list == NULL) printf("One is null\n");
     $$.code = concat_quad($1.code, $3.code);
   }
   ;
+
 
 inside_array:  
   expression 
   {
     $$.list = new_sym_list($1.result);
     //create int_list with expr
-    printf("new sym list\n");
     $$.code = $1.code;
   }
   | '{'init_array'}'
@@ -486,29 +479,31 @@ inside_array:
 
 
 
-boolean_expression: boolean_expression LOG_OR tag boolean_expression 
+boolean_expression: boolean_expression LOG_OR boolean_expression 
   {
       $$.truelist = NULL;
       $$.falselist = NULL;
-      complete_quad_list($1.falselist, $3);
-      $$.truelist = concat_quad_list($1.truelist,$4.truelist);
-      $$.falselist = $4.falselist;
+      symbol* label = new_label(&tds);
+      complete_quad_list($1.falselist, label);
+      $$.truelist = concat_quad_list($1.truelist,$3.truelist);
+      $$.falselist = $3.falselist;
       $$.code = NULL;
-      quad* q_label = quad_gen(Q_LABEL, NULL, NULL, $3);
+      quad* q_label = quad_gen(Q_LABEL, NULL, NULL, label);
       $$.code = concat_quad($1.code, q_label);
-      $$.code = concat_quad($$.code, $4.code);
+      $$.code = concat_quad($$.code, $3.code);
   }
-  | boolean_expression LOG_AND tag boolean_expression
+  | boolean_expression LOG_AND boolean_expression
     {
       $$.truelist = NULL;
       $$.falselist = NULL;
-      complete_quad_list($1.truelist, $3);
-      $$.truelist = $4.truelist;
-      $$.falselist = concat_quad_list($1.falselist,$4.falselist);    
+      symbol* label = new_label(&tds);
+      complete_quad_list($1.truelist, label);
+      $$.truelist = $3.truelist;
+      $$.falselist = concat_quad_list($1.falselist,$3.falselist);    
       $$.code = NULL;
-      quad* q_label = quad_gen(Q_LABEL, NULL, NULL, $3);
+      quad* q_label = quad_gen(Q_LABEL, NULL, NULL, label);
       $$.code = concat_quad($1.code, q_label);
-      $$.code = concat_quad($$.code, $4.code);
+      $$.code = concat_quad($$.code, $3.code);
     }
   | expression LT expression 
     {
@@ -525,7 +520,6 @@ boolean_expression: boolean_expression LOG_OR tag boolean_expression
     }
   | expression GT expression 
     {
-        printf("dans le gt de expr\n");
       quad* q_true = quad_gen(Q_GT, $1.result, $3.result, NULL);
       quad* q_false= quad_gen(Q_GOTO, NULL, NULL, NULL);
 
@@ -536,7 +530,6 @@ boolean_expression: boolean_expression LOG_OR tag boolean_expression
       $$.code = concat_quad($$.code, q_false);
       $$.truelist = new_list(q_true);
       $$.falselist = new_list(q_false);
-     printf("check err seg\n");
     }
   | expression LE expression 
     {
@@ -601,17 +594,6 @@ boolean_expression: boolean_expression LOG_OR tag boolean_expression
     }
   ;
 
-tag: %empty {
-   printf("Je créé le tag\n");
-  $$ = new_label(&tds);
-}
-
-//relop: GT
-//  | LT
-//  | LE
-//  | GE
-//  ;
-//
 expression: 
   expression '+' expression 
     {
@@ -635,7 +617,7 @@ expression:
     }
   | '-' expression %prec NEG
     {
-      printf("-E\n");
+     // printf("-E\n");
       symbol* minus_one = lookup(tds, "@@negconst_1");
       if (minus_one == NULL){
         minus_one = new_integer(&tds,-1);
@@ -676,7 +658,7 @@ expression:
     {
       symbol* s = lookup(tds, $1);
       if(!s) {
-        fprintf(stderr, "unknown variable %s used in arith. expr\n", $1);
+        print_error("Unkown ID", $1);
         return 0;
       }
       symbol* cst_1 = lookup(tds, "@@const_1"); //TODO @
@@ -693,7 +675,7 @@ expression:
     {
       symbol* s = lookup(tds, $1);
       if(!s) {
-        fprintf(stderr, "unknown variable %s used in arith. expr\n", $1);
+        print_error("Unkown variable used in expression ", $1);
         return 0;
       }
       symbol* cst_1 = lookup(tds, "@@const_1");
@@ -710,8 +692,9 @@ expression:
   | variable 
     {
       //if variable is an array value
+      
       if ($1.code != NULL) {
-        printf("variable de type array remonte en tant qu'expression\n");
+       // printf("variable de type array remonte en tant qu'expression\n");
         $$.result = new_temp(&tds);
         //get address value
         quad* q = quad_gen(Q_GET_AV, $1.result, NULL, $$.result);
@@ -731,7 +714,7 @@ expression:
         sprintf(tmp_name,"%s%d","@@const_",$1);
       else{
         sprintf(tmp_name,"%s%d","@@negconst_",$1*-1);
-        printf("lookup : %s \n", tmp_name);
+     //   printf("lookup : %s \n", tmp_name);
       }
     
       symbol* s = lookup(tds, tmp_name);
@@ -741,18 +724,41 @@ expression:
     };
 %%
 
-void yyerror (char *s) {
-    fprintf(stderr, "[Yacc] error: %s\n", s);
+void yyerror(char *str){
+    fprintf(stderr,"[Error] line %d : %s\n",yylineno,str);
+}
+
+void print_error(char* str1, char* str2){
+  char err_msg[ERR_LENGTH] = "";
+  strcat(err_msg, str1);
+  strcat(err_msg, str2);
+  yyerror(err_msg);
+}
+
+void debug(char* str){
+  if(!DEBUG) return;
+  fprintf(stdout, " == DEBUG : %s", str);
 }
 
 int main(int argc, char** argv) {
-  FILE* fp = fopen("test.c", "r");
-  yyin = fp;
+  FILE* fp_in = fopen(argv[1], "r");
+  yyin = fp_in;
   yyparse();
-  printf ("\n\n");
-  printf("==== TDS ========================================================\n"); 
-  print_symbol(tds);
-  printf("=================================================================\n");
-  fclose(fp);
+  debug("==== TDS ========================================================\n"); 
+  debug ("\n\n");
+  if(DEBUG) print_symbol(tds);
+  debug("=================================================================\n");
+
+  debug("==== QUADS ======================================================\n"); 
+  if(DEBUG) print_quads(whole_code);
+  debug("=================================================================\n\n");
+  FILE* fp_out = fopen("out.s", "w");
+  gen_data(fp_out, tds);
+  gen_code(fp_out, whole_code);
+  fclose(fp_out);
+
+
+
+  fclose(fp_in);
   return 0;
 }

@@ -27,7 +27,7 @@ quad* quad_gen(op , symbol* , symbol* , symbol* );
 void quad_add(quad**, quad*);
 quad* concat_quad(quad*,quad*);
 void print_quads(quad* head);
-
+void free_quad(quad*);
 
 
 #endif 

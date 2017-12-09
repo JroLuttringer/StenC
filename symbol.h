@@ -10,7 +10,7 @@
 #define NAME_LENGTH 43
 
 enum type_enum{
-    LABEL, CONSTANT, STRING_TYPE, ARRAY, VARIABLE 
+    LABEL, CONSTANT, STRING_TYPE, ARRAY, VARIABLE, STENCIL_TYPE
 };
 typedef enum type_enum type_enum;
 
@@ -41,7 +41,7 @@ typedef struct sym_list {
 sym_list* new_sym_list(symbol* );
 sym_list* concat_sym_list(sym_list*, sym_list*);
 symbol* get_nth_sym(int, sym_list*);
-
+symbol* new_stencil(symbol** head, char* id, int taille_dim);
 symbol* new_label(symbol** );
 symbol* new_string(symbol** , char*);
 symbol* new_temp(symbol**);
@@ -51,4 +51,6 @@ symbol* new_integer(symbol** , int );
 symbol* lookup(symbol*, char*);
 void print_symbol(symbol*);
 symbol* add(symbol**, char* );
+void free_symbol(symbol*);
+
 #endif

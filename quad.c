@@ -10,6 +10,16 @@ quad* quad_gen(op i, symbol* arg1, symbol* arg2, symbol* result ){
     return new_q;
 }
 
+void free_quad(quad* q)
+    quad* tmp;
+    while (q != NULL){
+        tmp = q;
+        q = q->next;
+        free_symbol(q->arg1);
+        free_symbol(q->arg2);
+        free_symbol(q->result);
+    }
+}
 
 void quad_add(quad** head, quad* el) {
     if (*head == NULL){

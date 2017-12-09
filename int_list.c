@@ -6,6 +6,17 @@ int_list* new_int_list(int k){
     n->value = k;
     return n;
 }
+
+void free_int_list(int_list* l){
+    int_list* tmp;
+    while (l != NULL)
+    {
+        tmp = l;
+        l = l->next;
+        free(tmp);
+    }
+}
+
 int_list* add_int_lists(int_list* l1, int_list* l2)	{
     if(l1 == NULL) return l2;
     if(l2 == NULL) return l1;

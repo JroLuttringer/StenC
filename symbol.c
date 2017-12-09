@@ -1,6 +1,12 @@
 #include "symbol.h"
 static int nb ;
 
+
+symbol* free_symbol(symbol* s){
+    free(s->name);
+    free(s);
+}
+
 symbol* new_temp(symbol** head){
     symbol* s = (symbol*)malloc(sizeof(symbol));
     s->type=CONSTANT;
@@ -31,7 +37,31 @@ symbol* new_array(symbol** head, char* id, int taille_dim){
     s->next = NULL;
     s->array.size = taille_dim;
     s->array.nb_dim = 1;
-    printf("taille dim : %d\n", taille_dim);
+   // printf("taille dim : %d\n", taille_dim);
+    s->array.dim_list = new_int_list(taille_dim);
+
+    symbol* tmp = *head;
+    if(tmp == NULL) *head = s;
+    else {
+        while(tmp->next != NULL){
+            tmp = tmp->next;
+        }
+        tmp->next = s;
+    }
+
+    return s;
+}
+
+
+symbol* new_stencil(symbol** head, char* id, int taille_dim){
+    symbol* s = (symbol*)malloc(sizeof(symbol));
+    s->is_constant=false;
+    s->type = STENCIL_TYPE;
+    s->name = (char*)malloc(NAME_LENGTH);
+    snprintf(s->name, NAME_LENGTH, id, nb++); 
+    s->next = NULL;
+    s->array.size = taille_dim;
+    s->array.nb_dim = 1;
     s->array.dim_list = new_int_list(taille_dim);
 
     symbol* tmp = *head;
@@ -48,7 +78,7 @@ symbol* new_array(symbol** head, char* id, int taille_dim){
 
 symbol* update_array(symbol* array_to_update, int new_dim_size){
     // int_list* tmp = array_to_update->array.dim_list;
-    printf("taille dim : %d\n", new_dim_size);
+   // printf("taille dim : %d\n", new_dim_size);
     array_to_update->array.size *= new_dim_size;
     // while(tmp != NULL){
     //     tmp->value *= new_dim_size;
@@ -106,7 +136,7 @@ symbol* new_label(symbol** head){
 }
 
 symbol* new_string(symbol** head, char* val){
-    printf("creating new string %s\n", val);
+   // printf("creating new string %s\n", val);
     symbol* s = (symbol*)malloc(sizeof(symbol));
     s->is_constant=false;
     s->type = STRING_TYPE;
@@ -124,7 +154,7 @@ symbol* new_string(symbol** head, char* val){
         }
         tmp->next = s;
     }
-    printf("created new string %s\n", s->string);
+  ///  printf("created new string %s\n", s->string);
     return s;
 }
 
@@ -190,9 +220,9 @@ sym_list* concat_sym_list(sym_list* l1, sym_list* l2){
 }
 
 symbol* get_nth_sym(int sym_nb, sym_list* l) {
-    printf("getting %d sym\n", sym_nb);
+  //  printf("getting %d sym\n", sym_nb);
     for ( int i = 0; i < sym_nb; i++) l = l->next;
-    printf("got it ! \n");
-    if(!(l)) printf("But it's null :/\n");
+  //  printf("got it ! \n");
+   // if(!(l)) printf("But it's null :/\n");
     return l->sym;
 }
