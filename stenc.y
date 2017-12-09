@@ -427,7 +427,7 @@ declaration:
   }
     | STENCIL_TYPE ID '{' INTEGER ',' INTEGER '}' ASSIGN init_array
   {
-    symbol* s = new_array(&tds, $2, $4);
+    symbol* s = new_stencil(&tds, $2, $4);
     update_array(s, $6);
     s->array.size = (1+2*($4))*(1+2*($6-1));
 
@@ -802,22 +802,114 @@ expression:
     }
   | array '$' ID
     {
-    /*
+      int checkpoint = 0;
+      if (DEBUG) printf("checkpoint %d \n", checkpoint++);
       $$.code = $1.code;
-      //verify four exists
-      symbol* four = lookup(tds, "@@const_4");
-      if (four == NULL) four = new_integer(&tds, 4);
 
-      //array.base + array.offset * 4 = address to load
-      quad* q = MULT offset 4 
+      //verify stencil exists
+      symbol* stencil = lookup(tds, $3);
+      if (stencil == NULL) {
+        printf("Stencil utilisé mais pas déclaré\n");
+        return 0;
+      }
+      if (stencil->type != STENCIL) {
+        printf("Erreur, utilisation de '$' sur qqc qui n'est pas un stencil\n");
+        return 0;
+      }
+      if (DEBUG) printf("checkpoint %d \n", checkpoint++);
+      int array_line_size = get_nth_dim($1.base->array.nb_dim, $1.base->array.dim_list);
+      int stenc_x = get_nth_dim(1, stencil->array.dim_list);
+      int min_i = -stenc_x;
+      int max_i = stenc_x;
+      if (DEBUG) printf("checkpoint %d \n", checkpoint++);
+      int stenc_y = get_nth_dim(2, stencil->array.dim_list);
+      int min_j = -(stenc_y-1);
+      int max_j = stenc_y-1;
+      int stenc_size = stencil->array.size;
+
+      if (DEBUG) printf("checkpoint %d \n", checkpoint++);
+
+
+      symbol* temp1 = new_temp(&tds);
+      quad* q = quad_geni(Q_MULTI, $1.offset, 4, temp1);
       $$.code = concat_quad($$.code , q);
-      q = ADD base temp temp2;
+      symbol* array_base_addr = new_temp(&tds);
+      q = quad_gen(Q_GET_A, $1.base, NULL, array_base_addr);
+      $$.code = concat_quad($$.code, q);
+      if (DEBUG) printf("checkpoint %d \n", checkpoint++);
+
+
+      symbol* temp2 = new_temp(&tds);
+      q = quad_gen(Q_ADD, array_base_addr, temp1, temp2);
       $$.code = concat_quad($$.code , q);
-      q = lw temp2 value
-      $$.code = concat_quad($$.code , q);
-      if (debug) printf("Recognised ")
-      X_STENC = $3->array.
-      */
+
+      //on a mntn l'adresse de base, il faut parcourir le stencil 
+      //chercher les valeures aux addresses par rapport au stencil, les
+      //multiplier par la valeure de cette variable du stencil
+      //puis faire la somme de tout ça
+      $$.result = new_temp(&tds);
+      //assign 0 to result
+      symbol* zero = lookup(tds, "@@const_0");
+      if (zero == NULL) zero = new_integer(&tds, 0);
+      q = quad_gen(Q_ASSIGN, zero, NULL, $$.result);
+      $$.code = concat_quad($$.code, q);
+      if (DEBUG) printf("checkpoint %d \n", checkpoint++);
+
+      int decalage_j, decalage_i, decalage_total, decalage_stencil;
+      symbol* array_addr_to_read = new_temp(&tds);
+      symbol* array_addr_value = new_temp(&tds);
+      symbol* stencil_base_addr = new_temp(&tds);
+      symbol* stencil_read_addr = new_temp(&tds);
+      symbol* stencil_addr_value = new_temp(&tds);
+      symbol* temp_result = new_temp(&tds);
+      q = quad_gen(Q_GET_A, stencil, NULL, stencil_base_addr);
+      $$.code = concat_quad($$.code, q);
+      if (DEBUG) printf("checkpoint %d \n", checkpoint++);
+
+      for ( int j = min_j; j <= max_j; j++) 
+      {
+        //parcours de la ligne j
+        decalage_j = j * array_line_size;
+        printf("minj %d, j %d, max_j %d \n", min_j, j, max_j);
+        if (DEBUG) printf("checkpoint %d \n", checkpoint++);
+        for ( int i = min_i; i <= max_i; i++) 
+        {
+           printf("mini %d, i %d, max_i %d \n", min_i, i, max_i);
+          decalage_i = i;
+          decalage_total = (decalage_i + decalage_j) * 4;
+          printf("decalage total dan array = %d\n", decalage_total);
+          //calculer addresse par rapport à base et offset
+          q = quad_geni(Q_ADDI, temp2, decalage_total, array_addr_to_read);
+          $$.code = concat_quad($$.code, q);
+          //lire valeure à cette adresse = t1
+          q = quad_gen(Q_GET_AV, array_addr_to_read, NULL, array_addr_value);
+          $$.code = concat_quad($$.code, q);
+          //calculer l'addresse de la valeure dans le stencil
+          decalage_stencil = ((j-min_j) * (1+2*stenc_x) + (i-min_i)) * 4;
+          printf("decalage total dans stencil = %d\n", decalage_stencil);
+
+          q = quad_geni(Q_ADDI, stencil_base_addr, decalage_stencil, stencil_read_addr);
+          $$.code = concat_quad($$.code, q);
+          //lire valeure a cette adresse = t2
+          q = quad_gen(Q_GET_AV, stencil_read_addr, NULL, stencil_addr_value);
+          $$.code = concat_quad($$.code, q);
+
+          //multiplier t1 par t2 = t3
+          q = quad_gen(Q_MULT, stencil_addr_value, array_addr_value, temp_result);
+          $$.code = concat_quad($$.code, q);
+
+          //ADD to result
+          q = quad_gen(Q_ADD, temp_result, $$.result, $$.result);
+          $$.code = concat_quad($$.code, q);
+
+        }
+      }
+      if (DEBUG) printf("checkpoint %d \n", checkpoint++);
+
+
+
+      if (DEBUG) printf("Recognised array $ ID\n");
+      
     }
     ;
 %%

@@ -71,10 +71,10 @@ symbol* new_array(symbol** head, char* id, int taille_dim){
 
 symbol* new_stencil(symbol** head, char* id, int taille_dim){
     symbol* s = (symbol*)malloc(sizeof(symbol));
-    CHECK(s);
+    CHECK(s != NULL);
 
     s->is_constant=false;
-    s->type = STENCIL_TYPE;
+    s->type = STENCIL;
     s->name = (char*)malloc(NAME_LENGTH);
     CHECK(s->name);
 

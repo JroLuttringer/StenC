@@ -11,6 +11,18 @@ quad* quad_gen(op i, symbol* arg1, symbol* arg2, symbol* result ){
     return new_q;
 }
 
+quad* quad_geni(op i, symbol* arg1, int argi2, symbol* result ){
+    quad* new_q = (quad*) malloc(sizeof(quad));
+    CHECK(new_q);
+    new_q->i = i;
+    new_q->arg1 = arg1; 
+    new_q->arg2 = NULL;
+    new_q->argi2 = argi2;
+    new_q->result = result;
+    new_q->next = NULL;
+    return new_q;
+}
+
 void free_quad(quad* q) {
     quad* tmp;
     while (q != NULL){

@@ -34,6 +34,7 @@ void gen_data(FILE* mips_file, symbol* tds){
           fprintf(mips_file, "%s:\t.asciiz %s\n", tmp->name, tmp->string);
           break;
         case ARRAY:
+        case STENCIL:
           size = tmp->array.size;
           //printf("Size of array is %d\n", size);
           fprintf(mips_file, "%s:\t.word", tmp->name);
@@ -99,17 +100,35 @@ void gen_code(FILE* mips_file, quad* code){
           fprintf(mips_file, "\tla $t0, %s\n", tmp->arg1->name);
           // fprintf(mips_file, "\tlw $t1, ($t0)\n");
           fprintf(mips_file, "\tsw $t0, %s\n", tmp->result->name);
+
+          break;
+        case Q_GET_A:
+          fprintf(mips_file, "\tla $t0, %s\n", tmp->arg1->name);
+          fprintf(mips_file, "\tsw $t0, %s\n", tmp->result->name);
           break;
         case Q_GET_AV:
           fprintf(mips_file, "\tlw $t0, %s\n", tmp->arg1->name);
           fprintf(mips_file, "\tlw $t1, ($t0)\n");
-          fprintf(mips_file, "\tsw $t1, %s\n", tmp->result->name);
+          fprintf(mips_file, "\tsw $t1, %s\n", tmp->result->name);         
+          //  fprintf(mips_file, "\tlw %s, %s\n", "$a0",tmp->result->name);
+          // fprintf(mips_file, "\tli $v0, 1\n");
+          // fprintf(mips_file, "\tsyscall\n");
           break;
         case Q_SET_AV:
           fprintf(mips_file, "\tlw $t0, %s\n", tmp->arg1->name);
           fprintf(mips_file, "\tlw $t1, %s\n", tmp->result->name);
           fprintf(mips_file, "\tsw $t0, ($t1)\n");
         break;
+        case Q_ADDI:
+          fprintf(mips_file, "\tlw %s, %s\n", "$t0",tmp->arg1->name);
+          fprintf(mips_file, "\taddi $t2,$t0,%d\n", tmp->argi2);
+          fprintf(mips_file, "\tsw %s, %s\n",  "$t2", tmp->result->name);
+          break;
+        case Q_MULTI:
+          fprintf(mips_file, "\tlw %s, %s\n", "$t0",tmp->arg1->name);
+          fprintf(mips_file, "\tmul $t2,$t0,%d\n", tmp->argi2);
+          fprintf(mips_file, "\tsw %s, %s\n",  "$t2", tmp->result->name);
+          break;
         default :
             printf("jro a oublié comme un gogol arg2NULL %d\n", tmp->i);
             break;
