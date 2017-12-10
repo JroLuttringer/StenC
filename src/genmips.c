@@ -97,7 +97,7 @@ void gen_code(FILE* mips_file, quad* code){
           break;   
 
         default: 
-          printf("jro a oublié comme un gogol arg1,arg2NULL\n");
+            printf("Type unknown\n");
           break;
       }
     } else if(tmp->arg1 != NULL && tmp->arg2 == NULL) {
@@ -108,11 +108,7 @@ void gen_code(FILE* mips_file, quad* code){
         break;
         case Q_LA:
           fprintf(mips_file, "\tla $t0, %s\n", tmp->arg1->name);
-          // fprintf(mips_file, "\tlw $t1, ($t0)\n");
           fprintf(mips_file, "\tsw $t0, %s\n", tmp->result->name);          
-          //  fprintf(mips_file, "\tlw %s, %s\n", "$a0",tmp->result->name);
-          // fprintf(mips_file, "\tli $v0, 1\n");
-          // fprintf(mips_file, "\tsyscall\n");
 
           break;
         case Q_GET_A:
@@ -142,7 +138,7 @@ void gen_code(FILE* mips_file, quad* code){
           fprintf(mips_file, "\tsw %s, %s\n",  "$t2", tmp->result->name);
           break;
         default :
-            printf("jro a oublié comme un gogol arg2NULL %d\n", tmp->i);
+            printf("Type unknown\n");
             break;
       }
     } else if (tmp->arg1 != NULL && tmp->arg2 != NULL){
@@ -182,10 +178,9 @@ void gen_code(FILE* mips_file, quad* code){
 
 
         default:
-            printf("jro a oublié comme un gogol no NULL\n");
+            printf("Type unknown\n");
         break;
       }
-      //TODO : if null , statement inutile ????
       if(tmp->i == Q_ADD || tmp->i == Q_SUB || tmp->i == Q_MULT || tmp->i == Q_DIV )
         fprintf(mips_file, "\tsw %s, %s\n",  "$t2", tmp->result->name);
     }
