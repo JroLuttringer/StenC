@@ -23,7 +23,7 @@
 %}
 %locations
 
-%token ID INT_TYPE STENCIL_TYPE VOID_TYPE COMMENT INTEGER PRINTI PRINTF STRING MAIN RETURN ASSIGN
+%token ID DEFINE INT_TYPE STENCIL_TYPE VOID_TYPE COMMENT INTEGER PRINTI PRINTF STRING MAIN RETURN ASSIGN
 %token IF ELSE WHILE DO FOR INCR DECR LOG_AND LOG_OR LOG_EQ GE LE NE GT LT NOT L
 %left ',' 
 %left LOG_OR
@@ -73,30 +73,91 @@
 %type <symbol> ARRAY_DECLARATION
 %type <string> ID STRING
 %type <value> INTEGER
-%type <expr> expression variable
+%type <expr> expression variable define define_list
 %type <init_list> init_array inside_array
 %type <array_access> array 
 %type <cond> boolean_expression
 %type <statement> statement statement_list program s assignement declaration COMMENT 
 %%
-s: program 
-{
-  if(DEBUG) printf("Match ! \n\n");
-  $$.code = NULL;
-  $$.code = concat_quad($$.code, $1.code);
-  whole_code = $$.code;
-  return 0;
-};
+s: 
+  define_list program 
+    {
+      if(DEBUG) printf("Match ! \n\n");
+      $$.code = NULL;
+      $$.code = concat_quad($$.code, $2.code);
+      whole_code = $$.code;
+      return 0;
+    }
+  ;
 
-program: INT_TYPE MAIN '(' ')' '{' statement_list RETURN expression ';' '}'
-{
-  $$.code = NULL;
-  $$.code = concat_quad($$.code, $6.code);
-  quad* ret = quad_gen(Q_RETURN, NULL,NULL, $8.result);
-  $$.code = concat_quad($$.code, $8.code);
-  $$.code = concat_quad($$.code, ret);
+define_list: 
+  define define_list
+    {
+      //$$.code = concat_quad($1.code, $2.code);
+    }
+  | {}
+    {
+      //$$.code = NULL;
+    }
+  ;
 
-};
+define: 
+  DEFINE ID INTEGER
+    {
+      new_define(&tds, $2, $3);
+      /*
+      symbol* s;
+      symbol* res = new_integer(&tds, $3);
+
+      if((s=lookup(tds, $2)) == NULL){
+       if(DEBUG) printf("defining %s\n", $2);
+        s=add(&tds, $2);
+      } else {
+        print_error("Rededefining of %s\n", $2);
+        free($2);
+        return 0;
+      }
+      quad* q = quad_gen(Q_ASSIGN, res, NULL, s);
+
+      $$.code = NULL;
+      $$.code = concat_quad($$.code, q);
+      */
+    }
+  |DEFINE ID '-' INTEGER
+    {  
+      new_define(&tds, $2, -$4);
+      /*    
+
+      symbol* s;
+      symbol* res = new_integer(&tds, -$4);
+
+      if((s=lookup(tds, $2)) == NULL){
+       if(DEBUG) printf("defining %s\n", $2);
+        s=add(&tds, $2);
+      } else {
+        print_error("Rededefining of %s\n", $2);
+        free($2);
+        return 0;
+      }
+      quad* q = quad_gen(Q_ASSIGN, res, NULL, s);
+
+      $$.code = NULL;
+      $$.code = concat_quad($$.code, q);
+      */
+    }
+  ;
+
+program: 
+  INT_TYPE MAIN '(' ')' '{' statement_list RETURN expression ';' '}'
+    {
+      $$.code = NULL;
+      $$.code = concat_quad($$.code, $6.code);
+      quad* ret = quad_gen(Q_RETURN, NULL,NULL, $8.result);
+      $$.code = concat_quad($$.code, $8.code);
+      $$.code = concat_quad($$.code, ret);
+
+    }
+  ;
 
 statement_list: 
   statement_list  statement  
@@ -113,7 +174,8 @@ statement_list:
   | {}
     {
       $$.code = NULL;
-    };
+    }
+  ;
 
 statement: 
   assignement ';' 
@@ -410,18 +472,9 @@ declaration:
 ARRAY_DECLARATION:
   ID '[' INTEGER ']' 
     {
-      char tmp_name[256];
-      if($1 >= 0)
-        sprintf(tmp_name,"%s%d","@@const_",$3);
-      else{
-        sprintf(tmp_name,"%s%d","@@negconst_",$3*-1);
-      if(DEBUG) printf("lookup : %s \n", tmp_name);
-      }
-      symbol* s = lookup(tds, tmp_name);
-      if(s == NULL) s=new_integer(&tds, $3); 
-     if(DEBUG) printf("Creating new array\n");
-      
-      s = lookup(tds, $1);
+
+      if(DEBUG) printf("Creating new array\n");
+      symbol* s = lookup(tds, $1);
       if (s != NULL) 
       {
         print_error(" Redeclaration of ", $1);
@@ -432,20 +485,61 @@ ARRAY_DECLARATION:
       s = new_array(&tds, $1, $3);
       free($1);
       $$ = s;
+    }
+  | ID '[' ID ']' 
+    {
+      symbol* define = lookup(tds, $3);
+      if (define == NULL) 
+      {
+        printf("Error, define const %s not found\n", $3);
+        free($1);
+        free($3);
+        return 0;
+      }
+      if (define->type != DEFINE_TYPE) 
+      {
+        printf("Error, %s not const define\n", $3);
+        free($1);
+        free($3);
+        return 0;
+      }
+      if(DEBUG) printf("Creating new array\n");
+      symbol* s = lookup(tds, $1);
+      if (s != NULL) 
+      {
+        print_error(" Redeclaration of ", $1);
+        free($1);
+        return 0;
+      }
 
+      s = new_array(&tds, $1, define->value);
+      free($1);
+      free($3);
+      $$ = s;
     }
   | ARRAY_DECLARATION '[' INTEGER ']' 
     {
-      char tmp_name[256];
-      if($1 >= 0)
-        sprintf(tmp_name,"%s%d","@@const_",$3);
-      else{
-        sprintf(tmp_name,"%s%d","@@negconst_",$3*-1);
-       if(DEBUG) printf("lookup : %s \n", tmp_name);
-      }
-      symbol* s = lookup(tds, tmp_name);
-      if(s == NULL) s=new_integer(&tds, $3); 
       update_array($1, $3);
+      $$ = $1;
+    }
+  | ARRAY_DECLARATION '[' ID ']' 
+    {
+      symbol* define = lookup(tds, $3);
+      if (define == NULL) 
+      {
+        printf("Error, define const %s not found\n", $3);
+        free($1);
+        free($3);
+        return 0;
+      }
+      if (define->type != DEFINE_TYPE) 
+      {
+        printf("Error, %s not const define\n", $3);
+        free($1);
+        free($3);
+        return 0;
+      }
+      update_array($1, define->value);
       $$ = $1;
     }
   ;

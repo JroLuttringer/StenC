@@ -11,7 +11,7 @@
 #define NAME_LENGTH 43
 
 enum type_enum{
-    LABEL, CONSTANT, STRING_TYPE, ARRAY, VARIABLE, STENCIL
+    LABEL, CONSTANT, STRING_TYPE, ARRAY, VARIABLE, STENCIL, DEFINE_TYPE
 };
 typedef enum type_enum type_enum;
 
@@ -50,6 +50,7 @@ symbol* new_temp(symbol**);
 symbol* new_array(symbol**,char*,int);
 symbol* update_array(symbol* array_to_update, int new_dim_size);
 symbol* new_integer(symbol** , int );
+symbol* new_define(symbol** , char*, int );
 symbol* lookup(symbol*, char*);
 void print_symbol(symbol*);
 symbol* add(symbol**, char* );

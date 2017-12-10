@@ -55,6 +55,7 @@ void gen_data(FILE* mips_file, symbol* tds){
           break;
         case CONSTANT:
         case VARIABLE:
+        case DEFINE_TYPE:
           fprintf(mips_file, "%s:\t.word %d\n", tmp->name, tmp->value);
           break;
         default:

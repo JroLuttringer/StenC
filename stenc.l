@@ -17,6 +17,7 @@ comment ("/*"([^*]|(\*+[^*/]))*"*"+"/")|("//"[^\n]*\n)
 string \"(\\.|[^"])*\"
 %%
 
+"#define" { return DEFINE;} 
 "int"    { return INT_TYPE; }
 "stencil" {return STENCIL_TYPE;}
 "$"      {return yytext[0];}

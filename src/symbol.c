@@ -144,6 +144,29 @@ symbol* new_integer(symbol** head, int value){
     return s;
 }
 
+symbol* new_define(symbol** head, char* name, int value){
+    symbol* s = (symbol*)malloc(sizeof(symbol));
+    CHECK(s);
+
+    s->type = DEFINE_TYPE;
+    s->is_constant=true;
+    s->value = value;
+    s->name = (char*)malloc(NAME_LENGTH);
+    CHECK(s->name);
+
+    snprintf(s->name, NAME_LENGTH, name, nb++); 
+    s->next = NULL;
+    symbol* tmp = *head;
+    if(tmp == NULL) *head = s;
+    else {
+        while(tmp->next != NULL){
+            tmp = tmp->next;
+        }
+        tmp->next = s;
+    }
+    return s;
+}
+
 
 
 symbol* new_label(symbol** head){
