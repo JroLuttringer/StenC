@@ -11,9 +11,6 @@ int main()
         exponent--;
     }
 
-/*    for(exponent=exponent; exponent != 0; exponent--){
-      result = result * base;
-    }*/
     printf("Answer = "); 
     printi(result);
 
