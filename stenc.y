@@ -885,7 +885,7 @@ expression:
       {
         //parcours de la ligne j
         decalage_j = j * array_line_size;
-        printf("minj %d, j %d, max_j %d \n", min_j, j, max_j);
+        if (DEBUG) printf("minj %d, j %d, max_j %d \n", min_j, j, max_j);
         if (DEBUG) printf("checkpoint %d \n", checkpoint++);
         int i;
         for ( i = min_i; i <= max_i; i++) 
@@ -995,7 +995,7 @@ expression:
       {
         //parcours de la ligne j
         decalage_j = j * array_line_size;
-        printf("minj %d, j %d, max_j %d \n", min_j, j, max_j);
+        if (DEBUG) printf("minj %d, j %d, max_j %d \n", min_j, j, max_j);
         if (DEBUG) printf("checkpoint %d \n", checkpoint++);
  	int i;       
 	for ( i = min_i; i <= max_i; i++) 
