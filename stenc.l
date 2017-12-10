@@ -5,7 +5,7 @@
   #include "include/symbol.h"
   #include "include/quad.h"
   #include "include/quad_list.h"
-  #include "include/y.tab.h"
+  #include "y.tab.h"
 
 %}
 

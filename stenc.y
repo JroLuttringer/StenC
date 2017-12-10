@@ -266,6 +266,7 @@ assignement:
     }
   | variable ASSIGN assignement
     {
+      $$.code = concat_quad($1.code, $3.code);
     }
   ;
 
@@ -445,6 +446,7 @@ declaration:
     s->array.size = (1+2*($4))*(1+2*($6-1));
 
     s->array.init_list = $9.list;
+    $$.code = NULL;
     /*
     if (DEBUG) printf("recognised init of stenci of size %d\n", s->array.size);
     //affect à toute les positions de l'array les valeures de la sym_list
