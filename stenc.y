@@ -880,14 +880,15 @@ expression:
       q = quad_gen(Q_GET_A, stencil, NULL, stencil_base_addr);
       $$.code = concat_quad($$.code, q);
       if (DEBUG) printf("checkpoint %d \n", checkpoint++);
-
-      for ( int j = min_j; j <= max_j; j++) 
+      int j;
+      for ( j = min_j; j <= max_j; j++) 
       {
         //parcours de la ligne j
         decalage_j = j * array_line_size;
         printf("minj %d, j %d, max_j %d \n", min_j, j, max_j);
         if (DEBUG) printf("checkpoint %d \n", checkpoint++);
-        for ( int i = min_i; i <= max_i; i++) 
+        int i;
+        for ( i = min_i; i <= max_i; i++) 
         {
            printf("mini %d, i %d, max_i %d \n", min_i, i, max_i);
           decalage_i = i;
@@ -989,16 +990,17 @@ expression:
       q = quad_gen(Q_GET_A, stencil, NULL, stencil_base_addr);
       $$.code = concat_quad($$.code, q);
       if (DEBUG) printf("checkpoint %d \n", checkpoint++);
-
-      for ( int j = min_j; j <= max_j; j++) 
+      int j;
+      for ( j = min_j; j <= max_j; j++) 
       {
         //parcours de la ligne j
         decalage_j = j * array_line_size;
         printf("minj %d, j %d, max_j %d \n", min_j, j, max_j);
         if (DEBUG) printf("checkpoint %d \n", checkpoint++);
-        for ( int i = min_i; i <= max_i; i++) 
+ 	int i;       
+	for ( i = min_i; i <= max_i; i++) 
         {
-           printf("mini %d, i %d, max_i %d \n", min_i, i, max_i);
+          printf("mini %d, i %d, max_i %d \n", min_i, i, max_i);
           decalage_i = i;
           decalage_total = (decalage_i + decalage_j) * 4;
           printf("decalage total dan array = %d\n", decalage_total);
