@@ -17,7 +17,7 @@
   quad* whole_code = NULL;
 
   #define ERR_LENGTH 64
-  #define DEBUG 1
+  #define DEBUG 0
   extern int yylineno; 
 
 %}
@@ -1076,6 +1076,5 @@ int main(int argc, char** argv) {
   free_symbol(tds);
   free_quad(whole_code);
   yylex_destroy();  
-
   return 0;
 }
