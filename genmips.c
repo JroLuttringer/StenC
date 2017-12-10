@@ -35,11 +35,23 @@ void gen_data(FILE* mips_file, symbol* tds){
           break;
         case ARRAY:
         case STENCIL:
-          size = tmp->array.size;
-          //printf("Size of array is %d\n", size);
-          fprintf(mips_file, "%s:\t.word", tmp->name);
-          for (i = 0; i < size; i++) fprintf(mips_file, " 0");
-          fprintf(mips_file, "\n");
+          if (tmp->array.init_list != NULL)
+          {
+            size = tmp->array.size; // * 4;
+            // printf("Size of array is %d\n", size);
+            fprintf(mips_file, "%s:\t.word", tmp->name);
+            for (i = 0; i < size; i++) 
+            {
+              fprintf(mips_file, " %d", get_nth_dim((i+1), tmp->array.init_list));
+              // printf(" %d", get_nth_dim((i+1), tmp->array.init_list));
+            }
+            fprintf(mips_file, "\n");
+          }
+          else
+          {
+            size = tmp->array.size * 4;
+            fprintf(mips_file, "%s:\t.word %d\n", tmp->name, size);
+          }
           break;
         case CONSTANT:
         case VARIABLE:
@@ -99,7 +111,10 @@ void gen_code(FILE* mips_file, quad* code){
         case Q_LA:
           fprintf(mips_file, "\tla $t0, %s\n", tmp->arg1->name);
           // fprintf(mips_file, "\tlw $t1, ($t0)\n");
-          fprintf(mips_file, "\tsw $t0, %s\n", tmp->result->name);
+          fprintf(mips_file, "\tsw $t0, %s\n", tmp->result->name);          
+          //  fprintf(mips_file, "\tlw %s, %s\n", "$a0",tmp->result->name);
+          // fprintf(mips_file, "\tli $v0, 1\n");
+          // fprintf(mips_file, "\tsyscall\n");
 
           break;
         case Q_GET_A:
@@ -110,14 +125,13 @@ void gen_code(FILE* mips_file, quad* code){
           fprintf(mips_file, "\tlw $t0, %s\n", tmp->arg1->name);
           fprintf(mips_file, "\tlw $t1, ($t0)\n");
           fprintf(mips_file, "\tsw $t1, %s\n", tmp->result->name);         
-          //  fprintf(mips_file, "\tlw %s, %s\n", "$a0",tmp->result->name);
-          // fprintf(mips_file, "\tli $v0, 1\n");
-          // fprintf(mips_file, "\tsyscall\n");
+
           break;
         case Q_SET_AV:
           fprintf(mips_file, "\tlw $t0, %s\n", tmp->arg1->name);
           fprintf(mips_file, "\tlw $t1, %s\n", tmp->result->name);
-          fprintf(mips_file, "\tsw $t0, ($t1)\n");
+          fprintf(mips_file, "\tsw $t0, ($t1)\n");          
+
         break;
         case Q_ADDI:
           fprintf(mips_file, "\tlw %s, %s\n", "$t0",tmp->arg1->name);

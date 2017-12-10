@@ -19,6 +19,7 @@ typedef struct array {
     int nb_dim;
     int size;
     int_list* dim_list;
+    int_list* init_list;
 } array_struct;
 
 typedef struct symbol {

@@ -17,7 +17,7 @@
   quad* whole_code = NULL;
 
   #define ERR_LENGTH 64
-  #define DEBUG 0
+  #define DEBUG 1
   extern int yylineno; 
 
 %}
@@ -54,7 +54,8 @@
   } array_access;
   struct {
     quad* code;
-    sym_list* list;
+    int_list* list;
+    int size;
   } init_list;
   struct {
     quad_list* truelist;
@@ -387,7 +388,10 @@ declaration:
   }
   | INT_TYPE ARRAY_DECLARATION ASSIGN '{'init_array'}'
   {
-  if(DEBUG) printf("recongnised init array assigned to tab but not assigning yet\n");
+    $$.code = NULL;
+    $2->array.init_list = $5.list;
+    /*
+    if(DEBUG) printf("recongnised init array assigned to tab but not assigning yet\n");
     //affect à toute les positions de l'array les valeures de la sym_list
     $$.code = $5.code;
     int i = 0;
@@ -399,23 +403,25 @@ declaration:
     quad* q  = quad_gen(Q_LA, $2, NULL, base);
     $$.code = concat_quad($$.code, q);
     symbol* indice;
-    symbol* offset;
-    symbol* address;
+    //symbol* offset = new_temp(&tds);
+    int offset;
+    symbol* address = new_temp(&tds);
     symbol* sym;
+    printf("assigning in array of size %d a init of size %d\n", $2->array.size, $5.size);
 
     for(i=0; i < $2->array.size; i++) {
       //create symbol of value i if doesnt exist
 
-      char tmp_name[42];
-      sprintf(tmp_name,"%s%d","@@const_",i);
-      indice = lookup(tds, tmp_name);
-      if (indice == NULL) indice = new_integer(&tds, i);
+      //char tmp_name[42];
+      //sprintf(tmp_name,"%s%d","@@const_",i);
+      //indice = lookup(tds, tmp_name);
+      //if (indice == NULL) indice = new_integer(&tds, i);
 
-      offset = new_temp(&tds);
-      q = quad_gen(Q_MULT, indice, four, offset);
+      q = quad_geni(Q_MULTI, four, i, address);
       $$.code = concat_quad($$.code, q);
-      address = new_temp(&tds);
-      q = quad_gen(Q_ADD, base, offset, address);
+      offset = i*4;
+
+      q = quad_geni(Q_ADDI, base, offset, address);
       $$.code = concat_quad($$.code, q);
 
       sym = get_nth_sym(i, $5.list);
@@ -424,7 +430,7 @@ declaration:
 
     }
     free_sym_list($5.list);
-
+    */
   }
     | STENCIL_TYPE ID '{' INTEGER ',' INTEGER '}' ASSIGN init_array
   {
@@ -438,6 +444,8 @@ declaration:
     update_array(s, $6);
     s->array.size = (1+2*($4))*(1+2*($6-1));
 
+    s->array.init_list = $9.list;
+    /*
     if (DEBUG) printf("recognised init of stenci of size %d\n", s->array.size);
     //affect à toute les positions de l'array les valeures de la sym_list
     $$.code = $9.code;
@@ -475,6 +483,7 @@ declaration:
       $$.code = concat_quad($$.code, q);
     }
     free_sym_list($9.list);
+    */
   }
   ;
 
@@ -527,31 +536,31 @@ init_array:
     {
       $$.list = $1.list;
       $$.code = $1.code;
+      $$.size = $1.size;
     }
   | init_array ',' inside_array
     {
-      $$.list = concat_sym_list($1.list, $3.list);
-      sym_list* tmp = $$.list;
-      int size = 0;
-      while (tmp) {
-        tmp = tmp->next;size++;
-      }
+      $$.list = concat_int_list($1.list, $3.list);
+    
+      $$.size = $1.size + $3.size;
       $$.code = concat_quad($1.code, $3.code);
     }
   ;
 
 
 inside_array:  
-  expression 
+  INTEGER 
     {
-      $$.list = new_sym_list($1.result);
-      //create int_list with expr
-      $$.code = $1.code;
+      $$.list = new_int_list($1);
+      //create int_list
+      $$.code = NULL;
+      $$.size = 1;
     }
   | '{'init_array'}'
     {
       $$.list = $2.list;
       $$.code = $2.code;
+      $$.size = $2.size;
     }
   ;
 
@@ -942,14 +951,14 @@ int main(int argc, char** argv) {
   yyin = fp_in;
   yyparse();
   if(DEBUG) {
-    printf("==== TDS ========================================================"); 
-    printf ("\n\n");
+    printf("==== TDS ========================================================\n"); 
+    printf ("\n");
     print_symbol(tds);
-    printf("=================================================================");
+    printf("=================================================================\n\n");
 
-    printf("==== QUADS ======================================================"); 
+    printf("==== QUADS ======================================================\n"); 
     print_quads(whole_code);
-    printf("=================================================================");
+    printf("=================================================================\n");
   }
   FILE* fp_out = fopen("out.s", "w");
   gen_data(fp_out, tds);
