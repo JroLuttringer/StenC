@@ -890,10 +890,10 @@ expression:
         int i;
         for ( i = min_i; i <= max_i; i++) 
         {
-           printf("mini %d, i %d, max_i %d \n", min_i, i, max_i);
+          if (DEBUG) printf("mini %d, i %d, max_i %d \n", min_i, i, max_i);
           decalage_i = i;
           decalage_total = (decalage_i + decalage_j) * 4;
-          printf("decalage total dan array = %d\n", decalage_total);
+          if (DEBUG) printf("decalage total dan array = %d\n", decalage_total);
           //calculer addresse par rapport à base et offset
           q = quad_geni(Q_ADDI, temp2, decalage_total, array_addr_to_read);
           $$.code = concat_quad($$.code, q);
@@ -902,7 +902,7 @@ expression:
           $$.code = concat_quad($$.code, q);
           //calculer l'addresse de la valeure dans le stencil
           decalage_stencil = ((j-min_j) * (1+2*stenc_x) + (i-min_i)) * 4;
-          printf("decalage total dans stencil = %d\n", decalage_stencil);
+          if (DEBUG) printf("decalage total dans stencil = %d\n", decalage_stencil);
 
           q = quad_geni(Q_ADDI, stencil_base_addr, decalage_stencil, stencil_read_addr);
           $$.code = concat_quad($$.code, q);
@@ -1000,10 +1000,10 @@ expression:
  	int i;       
 	for ( i = min_i; i <= max_i; i++) 
         {
-          printf("mini %d, i %d, max_i %d \n", min_i, i, max_i);
+          if (DEBUG) printf("mini %d, i %d, max_i %d \n", min_i, i, max_i);
           decalage_i = i;
           decalage_total = (decalage_i + decalage_j) * 4;
-          printf("decalage total dan array = %d\n", decalage_total);
+          if (DEBUG) printf("decalage total dan array = %d\n", decalage_total);
           //calculer addresse par rapport à base et offset
           q = quad_geni(Q_ADDI, temp2, decalage_total, array_addr_to_read);
           $$.code = concat_quad($$.code, q);
@@ -1012,7 +1012,7 @@ expression:
           $$.code = concat_quad($$.code, q);
           //calculer l'addresse de la valeure dans le stencil
           decalage_stencil = ((j-min_j) * (1+2*stenc_x) + (i-min_i)) * 4;
-          printf("decalage total dans stencil = %d\n", decalage_stencil);
+          if (DEBUG) printf("decalage total dans stencil = %d\n", decalage_stencil);
 
           q = quad_geni(Q_ADDI, stencil_base_addr, decalage_stencil, stencil_read_addr);
           $$.code = concat_quad($$.code, q);
