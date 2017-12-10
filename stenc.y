@@ -967,6 +967,10 @@ void print_error(char* str1, char* str2){
 
 
 int main(int argc, char** argv) {
+  if (argc != 1){
+    printf("Usage : ./bin/stenc file\n ( output in out.s )");
+    return 0;
+  }
   FILE* fp_in = fopen(argv[1], "r");
   yyin = fp_in;
   yyparse();
