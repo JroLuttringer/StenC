@@ -253,9 +253,10 @@ sym_list* concat_sym_list(sym_list* l1, sym_list* l2){
 }
 
 symbol* get_nth_sym(int sym_nb, sym_list* l) {
-  //  printf("getting %d sym\n", sym_nb);
+   // printf("getting %d sym\n", sym_nb);
     int i;
     for (  i = 0; i < sym_nb && l!=NULL; i++) l = l->next;
+   // printf("getting %d sym %d i\n", sym_nb, i);
   //  printf("got it ! \n");
    // if(!(l)) printf("But it's null :/\n");
     if(!l || i<sym_nb-1) {printf("Error in array declaration/access\n"); exit(-1);}
