@@ -325,10 +325,20 @@ assignement:
       }
       $$.code = concat_quad($1.code, $3.code);
       $$.code = concat_quad($$.code, q);
+      $$.sym = $1.result;
     }
   | variable ASSIGN assignement
-    {
+    {      
+      quad* q;
+      if ($1.code == NULL) {
+        q = quad_gen(Q_ASSIGN, $3.sym, NULL, $1.result);
+      }
+      else {
+        q = quad_gen(Q_SET_AV, $3.sym, NULL, $1.result);
+      }
       $$.code = concat_quad($1.code, $3.code);
+      $$.code = concat_quad($$.code, q);
+      $$.sym = $1.result;
     }
   ;
 
@@ -967,8 +977,8 @@ void print_error(char* str1, char* str2){
 
 
 int main(int argc, char** argv) {
-  if (argc != 1){
-    printf("Usage : ./bin/stenc file\n ( output in out.s )");
+  if (argc != 2){
+    printf("Usage : ./bin/stenc file\n ( output in out.s ) \n");
     return 0;
   }
   FILE* fp_in = fopen(argv[1], "r");
