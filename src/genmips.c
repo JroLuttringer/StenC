@@ -1,4 +1,4 @@
-#include "genmips.h"
+#include "../include/genmips.h"
 
 
 void change_symbol_table(symbol* tds){

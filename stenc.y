@@ -1,8 +1,8 @@
 %{
-  #include "symbol.h"
-  #include "quad_list.h"
-  #include "genmips.h"
-  #include "quad.h"
+  #include "include/symbol.h"
+  #include "include/quad_list.h"
+  #include "include/genmips.h"
+  #include "include/quad.h"
   #include <stdio.h>
   #include <stdlib.h>
   #include <string.h>
