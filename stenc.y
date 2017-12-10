@@ -110,7 +110,7 @@ statement_list:
       //$$.code = concat_quad($$.code, q);
       $$.code = concat_quad($$.code, $2.code);
     }
-  | %empty
+  | {}
     {
       $$.code = NULL;
     };

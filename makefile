@@ -24,7 +24,5 @@ lex.yy.c: $(EXEC).l
 	$(CC) -g -o $@ -c $< $(CFLAGS)
 	
 		
-
-
 clean:
 	rm bin/$(EXEC) obj/*.o y.tab.c y.tab.h lex.yy.c
