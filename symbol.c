@@ -11,6 +11,10 @@ void free_symbol(symbol* s){
             if(tmp->name)free(tmp->name);
             if(tmp->type == STRING_TYPE) free(tmp->string);
             if(tmp->type == ARRAY || tmp->type == STENCIL) free_int_list(tmp->array.dim_list);
+            if((tmp->type == ARRAY || tmp->type == STENCIL))
+            {
+               if (tmp->array.init_list != NULL)  free_int_list(tmp->array.init_list);
+            }
             free(tmp);
         }
     }
@@ -55,6 +59,7 @@ symbol* new_array(symbol** head, char* id, int taille_dim){
     s->array.nb_dim = 1;
    // printf("taille dim : %d\n", taille_dim);
     s->array.dim_list = new_int_list(taille_dim);
+    s->array.init_list = NULL;
 
     symbol* tmp = *head;
     if(tmp == NULL) *head = s;
@@ -83,6 +88,7 @@ symbol* new_stencil(symbol** head, char* id, int taille_dim){
     s->array.size = taille_dim;
     s->array.nb_dim = 1;
     s->array.dim_list = new_int_list(taille_dim);
+    s->array.init_list = NULL;
 
     symbol* tmp = *head;
     if(tmp == NULL) *head = s;
