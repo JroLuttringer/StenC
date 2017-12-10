@@ -16,9 +16,9 @@ int main(int argc, char** argv){
 	fprintf(f, "P6\n%i %i 255\n", width, height);
 	for (int x=0; x<width; x++) {
 	    for (int y=0; y<height; y++) {
-		fputc(array_in[x][y], f);   // 0 .. 255
-		fputc(array_in[x][y], f); // 0 .. 255
-		fputc(array_in[x][y], f);  // 0 .. 255
+		fputc(array_in[y][x], f);   // 0 .. 255
+		fputc(array_in[y][x], f); // 0 .. 255
+		fputc(array_in[y][x], f);  // 0 .. 255
 	    }
 	}
 	fclose(f);
