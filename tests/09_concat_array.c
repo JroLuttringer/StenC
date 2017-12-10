@@ -4,8 +4,6 @@ int main(){
 	int array_c[20];
 	int i;
 	for (i=0;  i<20; i++){
-	       printi(i);
-	       printf("\n");
 	       if(i<10){
 	       	array_c[i]=array_a[i];
 	       }
@@ -16,9 +14,7 @@ int main(){
 	printf("Concaténation : \n");
 	int j = 0;
 	while( j<20 ){
-	 printi(j);   
-	 //printi(array_c[j]);
-            printf("-");
+	 	printi(array_c[j]);printf("-");
 	    j++;
 	}
 	printf("\n");

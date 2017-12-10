@@ -329,7 +329,7 @@ assignement:
     }
   | variable ASSIGN assignement
     {      
-      quad* q;
+     /* quad* q;
       if ($1.code == NULL) {
         q = quad_gen(Q_ASSIGN, $3.sym, NULL, $1.result);
       }
@@ -339,6 +339,7 @@ assignement:
       $$.code = concat_quad($1.code, $3.code);
       $$.code = concat_quad($$.code, q);
       $$.sym = $1.result;
+    }*/
     }
   ;
 

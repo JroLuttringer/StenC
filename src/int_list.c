@@ -53,7 +53,12 @@ int_list* concat_int_list(int_list* l1, int_list* l2){
 int get_nth_dim(int dim, int_list* l) {
 
     int_list* tmp = l;
-    for ( int i = 1; i < dim; i++) tmp = tmp->next;
+    int i = 0;
+    for ( i = 1; i < dim && tmp!= NULL; i++) tmp = tmp->next;
+    if(tmp== NULL || i<dim-1 ){
+        printf("Error : array access beyond array size \n");
+        exit(-1);
+    }
     return tmp->value;
 }
 

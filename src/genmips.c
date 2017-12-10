@@ -50,7 +50,7 @@ void gen_data(FILE* mips_file, symbol* tds){
           else
           {
             size = tmp->array.size * 4;
-            fprintf(mips_file, "%s:\t.word %d\n", tmp->name, size);
+            fprintf(mips_file, "%s:\t.space %d\n", tmp->name, size);
           }
           break;
         case CONSTANT:
