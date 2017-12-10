@@ -556,6 +556,12 @@ inside_array:
       $$.code = NULL;
       $$.size = 1;
     }
+  | '-' INTEGER 
+    {
+     $$.list = new_int_list($2*-1);
+     $$.code = NULL;
+     $$.size =1;
+    }
   | '{'init_array'}'
     {
       $$.list = $2.list;
