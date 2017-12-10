@@ -361,7 +361,6 @@ declaration:
         free($2);
         return 0;
       }
-     // free($2);
       $$.code = NULL;
     }
   | INT_TYPE ID ASSIGN expression 
@@ -376,117 +375,36 @@ declaration:
         return 0;
       }
       quad* q = quad_gen(Q_ASSIGN, $4.result, NULL, s);
-     // $$.result = q->result;
-     // free($2);
+
       $$.code = NULL;
       $$.code = concat_quad($$.code, $4.code);
       $$.code = concat_quad($$.code, q);
     }
   | INT_TYPE ARRAY_DECLARATION
-  {
-  if(DEBUG) printf("recognised int_type array_declaration\n");
-    $$.code = NULL;
-  }
+    {
+      if(DEBUG) printf("recognised int_type array_declaration\n");
+      $$.code = NULL;
+    }
   | INT_TYPE ARRAY_DECLARATION ASSIGN '{'init_array'}'
-  {
-    $$.code = NULL;
-    $2->array.init_list = $5.list;
-    /*
-    if(DEBUG) printf("recongnised init array assigned to tab but not assigning yet\n");
-    //affect à toute les positions de l'array les valeures de la sym_list
-    $$.code = $5.code;
-    int i = 0;
-    //for address use
-    symbol* four = lookup(tds, "@@const_4");
-    if (four == NULL) four = new_integer(&tds, 4);
-
-    symbol* base = new_temp(&tds);
-    quad* q  = quad_gen(Q_LA, $2, NULL, base);
-    $$.code = concat_quad($$.code, q);
-    symbol* indice;
-    //symbol* offset = new_temp(&tds);
-    int offset;
-    symbol* address = new_temp(&tds);
-    symbol* sym;
-    printf("assigning in array of size %d a init of size %d\n", $2->array.size, $5.size);
-
-    for(i=0; i < $2->array.size; i++) {
-      //create symbol of value i if doesnt exist
-
-      //char tmp_name[42];
-      //sprintf(tmp_name,"%s%d","@@const_",i);
-      //indice = lookup(tds, tmp_name);
-      //if (indice == NULL) indice = new_integer(&tds, i);
-
-      q = quad_geni(Q_MULTI, four, i, address);
-      $$.code = concat_quad($$.code, q);
-      offset = i*4;
-
-      q = quad_geni(Q_ADDI, base, offset, address);
-      $$.code = concat_quad($$.code, q);
-
-      sym = get_nth_sym(i, $5.list);
-      q = quad_gen(Q_SET_AV, sym, NULL, address);
-      $$.code = concat_quad($$.code, q);
-
+    {
+      $$.code = NULL;
+      $2->array.init_list = $5.list;
     }
-    free_sym_list($5.list);
-    */
-  }
-    | STENCIL_TYPE ID '{' INTEGER ',' INTEGER '}' ASSIGN init_array
-  {
-    if(lookup(tds, $2)) {
-      print_error("Redefinition of ", $2);
+  | STENCIL_TYPE ID '{' INTEGER ',' INTEGER '}' ASSIGN init_array
+    {
+      if(lookup(tds, $2)) {
+        print_error("Redefinition of ", $2);
+        free($2);
+        return 0;
+      }
+      symbol* s = new_stencil(&tds, $2, $4);
       free($2);
-      return 0;
+      update_array(s, $6);
+      s->array.size = (1+2*($4))*(1+2*($6-1));
+
+      s->array.init_list = $9.list;
+      $$.code = NULL;
     }
-    symbol* s = new_stencil(&tds, $2, $4);
-    free($2);
-    update_array(s, $6);
-    s->array.size = (1+2*($4))*(1+2*($6-1));
-
-    s->array.init_list = $9.list;
-    $$.code = NULL;
-    /*
-    if (DEBUG) printf("recognised init of stenci of size %d\n", s->array.size);
-    //affect à toute les positions de l'array les valeures de la sym_list
-    $$.code = $9.code;
-    int i = 0;
-
-    //for address use
-    symbol* four = lookup(tds, "@@const_4");
-    if (four == NULL) four = new_integer(&tds, 4);
-
-    symbol* base = new_temp(&tds);
-    quad* q  = quad_gen(Q_LA, s, NULL, base);
-    $$.code = concat_quad($$.code, q);
-    symbol* indice;
-    symbol* offset;
-    symbol* address;
-    symbol* sym;
-
-    for(i=0; i < s->array.size; i++) {
-      //create symbol of value i if doesnt exist
-
-      char tmp_name[42];
-      sprintf(tmp_name,"%s%d","@@const_",i);
-      indice = lookup(tds, tmp_name);
-      if (indice == NULL) indice = new_integer(&tds, i);
-
-      offset = new_temp(&tds);
-      q = quad_gen(Q_MULT, indice, four, offset);
-      $$.code = concat_quad($$.code, q);
-      address = new_temp(&tds);
-      q = quad_gen(Q_ADD, base, offset, address);
-      $$.code = concat_quad($$.code, q);
-
-      sym = get_nth_sym(i, $9.list);
-      q = quad_gen(Q_SET_AV, sym, NULL, address);
-      $$.code = concat_quad($$.code, q);
-    }
-    free_sym_list($9.list);
-    */
-  }
   ;
 
 ARRAY_DECLARATION:
@@ -530,7 +448,7 @@ ARRAY_DECLARATION:
       update_array($1, $3);
       $$ = $1;
     }
-    ;
+  ;
 
 
 init_array:  
@@ -939,7 +857,7 @@ expression:
       free($3);
 
     }
-    ;
+  ;
 %%
 
 void yyerror(char *str){
