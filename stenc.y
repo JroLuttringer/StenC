@@ -105,45 +105,10 @@ define:
   DEFINE ID INTEGER
     {
       new_define(&tds, $2, $3);
-      /*
-      symbol* s;
-      symbol* res = new_integer(&tds, $3);
-
-      if((s=lookup(tds, $2)) == NULL){
-       if(DEBUG) printf("defining %s\n", $2);
-        s=add(&tds, $2);
-      } else {
-        print_error("Rededefining of %s\n", $2);
-        free($2);
-        return 0;
-      }
-      quad* q = quad_gen(Q_ASSIGN, res, NULL, s);
-
-      $$.code = NULL;
-      $$.code = concat_quad($$.code, q);
-      */
     }
   |DEFINE ID '-' INTEGER
     {  
       new_define(&tds, $2, -$4);
-      /*    
-
-      symbol* s;
-      symbol* res = new_integer(&tds, -$4);
-
-      if((s=lookup(tds, $2)) == NULL){
-       if(DEBUG) printf("defining %s\n", $2);
-        s=add(&tds, $2);
-      } else {
-        print_error("Rededefining of %s\n", $2);
-        free($2);
-        return 0;
-      }
-      quad* q = quad_gen(Q_ASSIGN, res, NULL, s);
-
-      $$.code = NULL;
-      $$.code = concat_quad($$.code, q);
-      */
     }
   ;
 
@@ -329,7 +294,7 @@ assignement:
     }
   | variable ASSIGN assignement
     {      
-     /* quad* q;
+      quad* q;
       if ($1.code == NULL) {
         q = quad_gen(Q_ASSIGN, $3.sym, NULL, $1.result);
       }
@@ -339,8 +304,8 @@ assignement:
       $$.code = concat_quad($1.code, $3.code);
       $$.code = concat_quad($$.code, q);
       $$.sym = $1.result;
-    }*/
     }
+    
   ;
 
 variable: 
@@ -1108,9 +1073,6 @@ int main(int argc, char** argv) {
   fclose(fp_in);
   free_symbol(tds);
   free_quad(whole_code);
-  
-
-
   yylex_destroy();  
 
   return 0;

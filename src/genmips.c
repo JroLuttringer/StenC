@@ -11,7 +11,6 @@ void change_symbol_table(symbol* tds){
     } else{
       char* new_name = realloc(tmp->name,strlen(tmp->name)+3);
       if(!new_name){printf("problem while generating code \n"); exit(-1);}
-      //free(tmp->name);
       tmp->name = new_name;
       strcat(tmp->name, "__\0");
     }
@@ -37,13 +36,11 @@ void gen_data(FILE* mips_file, symbol* tds){
         case STENCIL:
           if (tmp->array.init_list != NULL)
           {
-            size = tmp->array.size; // * 4;
-            // printf("Size of array is %d\n", size);
+            size = tmp->array.size; 
             fprintf(mips_file, "%s:\t.word", tmp->name);
             for (i = 0; i < size; i++) 
             {
               fprintf(mips_file, " %d", get_nth_dim((i+1), tmp->array.init_list));
-              // printf(" %d", get_nth_dim((i+1), tmp->array.init_list));
             }
             fprintf(mips_file, "\n");
           }
